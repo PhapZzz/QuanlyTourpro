@@ -37,7 +37,7 @@ const MOCK_POINTS = [
 ]
 
 export default function CustomerProfile() {
-  const [bookings, setBookings]   = useState(MOCK_BOOKINGS)
+  const [bookings, setBookings]   = useState([])
   const [editOpen, setEditOpen]   = useState(false)
   const [reviewOpen, setRevOpen]  = useState(false)
   const [selectedBooking, setSB]  = useState(null)
@@ -47,7 +47,7 @@ export default function CustomerProfile() {
   const navigate                  = useNavigate()
 
   useEffect(() => {
-    bookingAPI.getByCustomer(1, { size: 20 })
+    bookingAPI.getByCustomer(user?.id, { size: 20 })
       .then(r => { if (r.data.data?.content?.length) setBookings(r.data.data.content) })
       .catch(() => {})
   }, [])

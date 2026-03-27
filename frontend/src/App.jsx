@@ -5,6 +5,8 @@ import viVN from 'antd/locale/vi_VN'
 import { useAuthStore } from './stores/authStore'
 
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+
 
 import AdminLayout    from './layouts/AdminLayout'
 import StaffLayout    from './layouts/StaffLayout'
@@ -60,6 +62,7 @@ export default function App() {
         <Routes>
           <Route path="/"      element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
           {/* Admin portal */}
           <Route path="/admin" element={

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Form, Input, Button, Card, Typography, message, Select } from 'antd'
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate,Link } from 'react-router-dom'
 import { authAPI } from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 
@@ -75,6 +75,21 @@ export default function LoginPage() {
           textAlign: 'center', fontSize: 12, color: '#aaa',
           borderTop: '1px solid #f0f0f0', paddingTop: 14, marginTop: 8,
         }}>
+
+    //dangky
+    <div
+      style={{
+        textAlign: 'center',
+        marginTop: 14,
+        fontSize: 14,
+      }}
+    >
+      Chưa có tài khoản?{' '}
+      <Link to="/register" style={{ color: '#1D9E75', fontWeight: 600 }}>
+        Đăng ký ngay
+      </Link>
+    </div>
+
           <div style={{ marginBottom: 4, fontWeight: 500, color: '#888' }}>Tài khoản demo:</div>
           <div>admin / Admin@123 &nbsp;|&nbsp; hr_manager / Admin@123</div>
           <div>warehouse1 / Admin@123 &nbsp;|&nbsp; cust_an / Admin@123</div>

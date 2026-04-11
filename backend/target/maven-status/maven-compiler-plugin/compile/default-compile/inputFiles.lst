@@ -33,6 +33,7 @@ E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\User
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\config\JpaAuditingConfig.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\SalaryRecord.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\ExportDetail.java
+E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\TourServiceItem.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\PositionHistoryRepository.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\service\TourService.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\service\SalaryService.java
@@ -72,6 +73,7 @@ E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\LeaveReq
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\EmployeeDTO.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\SupplierDTO.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\Tour.java
+E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\TourServiceRepository.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\CustomerRepository.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\Booking.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\BookingRepository.java

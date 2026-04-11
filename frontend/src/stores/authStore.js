@@ -15,6 +15,7 @@ export const useAuthStore = create(
 
       logout: () => {
         localStorage.removeItem('tourpro_token')
+        localStorage.removeItem('tourpro-auth')
         set({ token: null, user: null, isAuthenticated: false })
       },
 

@@ -40,6 +40,6 @@ public class User {
     @CreatedDate private LocalDateTime createdAt;
     @LastModifiedDate private LocalDateTime updatedAt;
 
-    public enum Role { ADMIN, HR_MANAGER, WAREHOUSE_MANAGER, SALES_MANAGER, EMPLOYEE, CUSTOMER }
+    public enum Role { ADMIN, HR_MANAGER, WAREHOUSE_MANAGER, SALES_MANAGER, EMPLOYEE, CUSTOMER, USER, }
     public enum UserStatus { ACTIVE, LOCKED, INACTIVE }
 }

@@ -26,13 +26,36 @@ public class BookingService {
     private final UserRepository         userRepo;
     private final CustomerService        customerService;
 
-    public BookingDTO.Response create(BookingDTO.CreateRequest req, String createdByUsername) {
-        Customer customer = customerRepo.findById(req.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+    public BookingDTO.Response create(BookingDTO.CreateRequest req, String username) {
+
+        // 🔥 Lấy user từ username (JWT)
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Customer customer;
+
+        // 🔥 CASE 1: SALES → dùng customerId từ FE
+        if ((user.getRole() == User.Role.SALES_MANAGER || user.getRole() == User.Role.ADMIN)
+                && req.getCustomerId() != null) {
+
+            customer = customerRepo.findById(req.getCustomerId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found"));
+        }
+
+        // 🔥 CASE 2: CUSTOMER → tự lấy chính mình
+        else {
+            customer = customerRepo.findByUserId(user.getId())
+                    .orElseThrow(() -> new RuntimeException("Customer not found for this user"));
+        }
+
+        // ====== PHẦN CŨ GIỮ NGUYÊN ======
+
         TourSchedule schedule = scheduleRepo.findById(req.getTourScheduleId())
                 .orElseThrow(() -> new RuntimeException("Tour schedule not found"));
 
-        int totalPeople = req.getAdults() + (req.getChildren() != null ? req.getChildren() : 0);
+        int children = req.getChildren() != null ? req.getChildren() : 0;
+        int totalPeople = req.getAdults() + children;
+
         int available = schedule.getCapacity() - schedule.getBooked();
         if (available < totalPeople)
             throw new RuntimeException("Not enough slots. Available: " + available);
@@ -43,41 +66,48 @@ public class BookingService {
                 : priceAdult.multiply(new BigDecimal("0.7"));
 
         BigDecimal totalPrice = priceAdult.multiply(new BigDecimal(req.getAdults()))
-                .add(priceChild.multiply(new BigDecimal(req.getChildren() != null ? req.getChildren() : 0)));
+                .add(priceChild.multiply(new BigDecimal(children)));
 
-        // VIP discount 5%
-        BigDecimal discount = req.getDiscount() != null ? req.getDiscount() : BigDecimal.ZERO;
-        if (customer.getSegment() == Customer.CustomerSegment.VIP)
-            discount = discount.add(totalPrice.multiply(new BigDecimal("0.05")));
+        // 🔥 FIX: KHÔNG lấy discount từ FE nữa
+        BigDecimal discount = BigDecimal.ZERO;
+
+        if (customer.getSegment() == Customer.CustomerSegment.VIP) {
+            discount = totalPrice.multiply(new BigDecimal("0.05"));
+        }
 
         BigDecimal finalPrice = totalPrice.subtract(discount);
-        BigDecimal deposit    = finalPrice.multiply(new BigDecimal("0.30")).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal deposit = finalPrice.multiply(new BigDecimal("0.30"))
+                .setScale(0, RoundingMode.HALF_UP);
 
         String code = "DT-" + LocalDate.now().getYear() + "-"
                 + String.format("%04d", bookingRepo.count() + 1);
 
-        User createdBy = userRepo.findByUsername(createdByUsername).orElse(null);
-
         Booking booking = Booking.builder()
-                .code(code).customer(customer).tourSchedule(schedule)
+                .code(code)
+                .customer(customer)
+                .tourSchedule(schedule)
                 .adults(req.getAdults())
-                .children(req.getChildren() != null ? req.getChildren() : 0)
-                .totalPrice(finalPrice).deposit(deposit).discount(discount)
-                .paymentMethod(req.getPaymentMethod())
+                .children(children)
+                .totalPrice(finalPrice)
+                .deposit(deposit)
+                .discount(discount)
+                .paymentMethod(Booking.PaymentMethod.valueOf(req.getPaymentMethod()))
                 .paymentStatus(Booking.PaymentStatus.UNPAID)
                 .status(Booking.BookingStatus.PENDING)
-                .note(req.getNote()).createdBy(createdBy)
+                .note(req.getNote())
+                .createdBy(user)
                 .build();
 
         Booking saved = bookingRepo.save(booking);
 
-        // Update schedule booked count
+        // update slot
         schedule.setBooked(schedule.getBooked() + totalPeople);
-        if (schedule.getBooked() >= schedule.getCapacity())
+        if (schedule.getBooked() >= schedule.getCapacity()) {
             schedule.setStatus(TourSchedule.ScheduleStatus.FULL);
+        }
         scheduleRepo.save(schedule);
 
-        // Award loyalty points: 1 point per 10,000 VND
+        // cộng điểm
         int points = finalPrice.divide(new BigDecimal("10000"), 0, RoundingMode.DOWN).intValue();
         customerService.addLoyaltyPoints(customer.getId(), points);
 

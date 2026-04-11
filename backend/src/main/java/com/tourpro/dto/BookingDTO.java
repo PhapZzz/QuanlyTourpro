@@ -33,13 +33,19 @@ public class BookingDTO {
 
     @Data
     public static class CreateRequest {
-        @NotNull                    private Long customerId;
-        @NotNull                    private Long tourScheduleId;
-        @Min(1)                     private Integer adults;
-        @Min(0)                     private Integer children;
-        private BigDecimal          discount;
-        private Booking.PaymentMethod paymentMethod;
-        private String              note;
+
+        private Long customerId; // không requie
+
+        @NotNull(message = "tourScheduleId không được null")
+        private Long tourScheduleId;
+
+        @NotNull
+        private Integer adults;
+
+        private Integer children;
+
+        private String paymentMethod;
+        private String note;
     }
 
     @Data

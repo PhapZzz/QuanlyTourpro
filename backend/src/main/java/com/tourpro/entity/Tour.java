@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,6 +15,7 @@ import java.util.List;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Tour {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -67,12 +69,19 @@ public class Tour {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
+    // ── QUAN HỆ MỚI: Tour ↔ Product (Many-to-Many qua TourService) ──
+    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL,
+               fetch = FetchType.LAZY, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
+    @Builder.Default
+    private List<TourServiceItem> services = new ArrayList<>();
+
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TourSchedule> schedules;
 
-    @CreatedDate private LocalDateTime createdAt;
+    @CreatedDate  private LocalDateTime createdAt;
     @LastModifiedDate private LocalDateTime updatedAt;
 
-    public enum TourType { DOMESTIC, INTERNATIONAL, MICE }
+    public enum TourType   { DOMESTIC, INTERNATIONAL, MICE }
     public enum TourStatus { ACTIVE, INACTIVE, FULL }
 }

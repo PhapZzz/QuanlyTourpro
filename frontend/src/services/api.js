@@ -13,6 +13,7 @@ api.interceptors.response.use(
   err => {
     if (err.response?.status === 401) {
       localStorage.removeItem('tourpro_token')
+      localStorage.removeItem('tourpro-auth')
       window.location.href = '/login'
     }
     return Promise.reject(err)
@@ -91,6 +92,24 @@ export const tourAPI = {
   create:      (data)      => api.post('/tours', data),
   update:      (id, data)  => api.put(`/tours/${id}`, data),
   addSchedule: (id, data)  => api.post(`/tours/${id}/schedules`, data),
+  // ===== SERVICES =====
+    getServices: (tourId) =>
+      api.get(`/tours/${tourId}/services`),
+
+    addService: (tourId, data) =>
+      api.post(`/tours/${tourId}/services`, data),
+
+    updateService: (tourId, productId, data) =>
+      api.put(`/tours/${tourId}/services/${productId}`, data),
+
+    removeService: (tourId, productId) =>
+      api.delete(`/tours/${tourId}/services/${productId}`),
+
+    recalculatePrice: (tourId, margin = 30) =>
+      api.post(`/tours/${tourId}/recalculate-price`, null, {
+        params: { margin }
+      }),
+
 }
 
 export const bookingAPI = {

@@ -22,6 +22,7 @@ com\tourpro\dto\LeaveDTO$Response$ResponseBuilder.class
 com\tourpro\entity\Customer$CustomerSource.class
 com\tourpro\entity\Customer.class
 com\tourpro\controller\AdminController.class
+com\tourpro\entity\TourServiceItem$TourServiceItemBuilder.class
 com\tourpro\repository\CustomerRepository.class
 com\tourpro\entity\PositionHistory.class
 com\tourpro\service\TourService.class
@@ -43,8 +44,10 @@ com\tourpro\dto\ReportDTO$RevenueReport.class
 com\tourpro\entity\Employee$EmployeeBuilder.class
 com\tourpro\entity\Position.class
 com\tourpro\dto\ReportDTO$DashboardStats$DashboardStatsBuilder.class
+com\tourpro\dto\TourDTO$UpdateServiceRequest.class
 com\tourpro\repository\BookingRepository.class
 com\tourpro\dto\TourDTO$ScheduleResponse.class
+com\tourpro\dto\TourDTO$ServiceItem$ServiceItemBuilder.class
 com\tourpro\entity\ExportDetail$ExportDetailBuilder.class
 com\tourpro\service\LeaveService.class
 com\tourpro\entity\Product.class
@@ -55,13 +58,16 @@ com\tourpro\dto\ProductDTO.class
 com\tourpro\dto\ReportDTO$TourRevenueItem.class
 com\tourpro\dto\UserDTO.class
 com\tourpro\controller\BookingController.class
+com\tourpro\dto\TourDTO$AddServiceRequest.class
 com\tourpro\entity\Tour$TourType.class
 com\tourpro\dto\CustomerDTO$Response.class
 com\tourpro\entity\User$Role.class
 com\tourpro\config\JwtAuthFilter.class
 com\tourpro\dto\ProductDTO$Response.class
 com\tourpro\entity\ExportDetail.class
+com\tourpro\repository\TourServiceRepository.class
 com\tourpro\dto\ReportDTO$WarehouseReport.class
+com\tourpro\dto\TourDTO$ServiceItem.class
 com\tourpro\entity\Product$ProductStatus.class
 com\tourpro\dto\BookingDTO$Response.class
 com\tourpro\dto\ReportDTO.class
@@ -71,6 +77,7 @@ com\tourpro\entity\ExportVoucher.class
 com\tourpro\dto\TourDTO.class
 com\tourpro\dto\ReviewDTO$Response$ResponseBuilder.class
 com\tourpro\dto\SupplierDTO$UpdateRequest.class
+com\tourpro\entity\TourServiceItem.class
 com\tourpro\config\SecurityConfig.class
 com\tourpro\controller\SalaryController.class
 com\tourpro\dto\LeaveDTO$ApproveRequest.class

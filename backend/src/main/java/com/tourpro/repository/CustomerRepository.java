@@ -12,7 +12,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByPhone(String phone);
     Page<Customer> findByFullNameContainingIgnoreCaseOrPhoneContaining(String name, String phone, Pageable pageable);
     Page<Customer> findBySegment(Customer.CustomerSegment segment, Pageable pageable);
-
+    Optional<Customer> findByUserId(Long userId);
     @Query("SELECT c FROM Customer c ORDER BY (SELECT COALESCE(SUM(b.totalPrice),0) FROM Booking b WHERE b.customer=c AND b.status IN ('PAID','COMPLETED')) DESC")
     Page<Customer> findTopByTotalSpending(Pageable pageable);
 }

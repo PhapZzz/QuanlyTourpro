@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `tourpro_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `tourpro_db`;
 -- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
 --
 -- Host: localhost    Database: tourpro_db
@@ -65,7 +67,7 @@ CREATE TABLE `backup_logs` (
   `status` enum('SUCCESS','FAILED','IN_PROGRESS') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'IN_PROGRESS',
   `notes` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Log theo dõi các lần sao lưu CSDL';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Log theo dõi các lần sao lưu CSDL';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +76,7 @@ CREATE TABLE `backup_logs` (
 
 LOCK TABLES `backup_logs` WRITE;
 /*!40000 ALTER TABLE `backup_logs` DISABLE KEYS */;
-INSERT INTO `backup_logs` VALUES (1,'2026-03-23 04:10:06','AUTO',NULL,NULL,'IN_PROGRESS','Scheduled daily backup – run backup.sh manually or via cron'),(2,'2026-03-27 05:58:46','AUTO',NULL,NULL,'IN_PROGRESS','Scheduled daily backup – run backup.sh manually or via cron');
+INSERT INTO `backup_logs` VALUES (1,'2026-03-23 04:10:06','AUTO',NULL,NULL,'IN_PROGRESS','Scheduled daily backup – run backup.sh manually or via cron'),(2,'2026-03-27 05:58:46','AUTO',NULL,NULL,'IN_PROGRESS','Scheduled daily backup – run backup.sh manually or via cron'),(3,'2026-04-08 07:13:01','AUTO',NULL,NULL,'IN_PROGRESS','Scheduled daily backup – run backup.sh manually or via cron');
 /*!40000 ALTER TABLE `backup_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -111,7 +113,7 @@ CREATE TABLE `bookings` (
   CONSTRAINT `FK4lsaxxymtu2xxvqp0mg2tqqya` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
   CONSTRAINT `FKbvfibgflhsb0g2hnjauiv5khs` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`),
   CONSTRAINT `FKmxsc5p1lvpol8ylaosgqb735r` FOREIGN KEY (`tour_schedule_id`) REFERENCES `tour_schedules` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -120,9 +122,77 @@ CREATE TABLE `bookings` (
 
 LOCK TABLES `bookings` WRITE;
 /*!40000 ALTER TABLE `bookings` DISABLE KEYS */;
-INSERT INTO `bookings` VALUES (1,2,NULL,0,'DT-2026-1024',NULL,3306000.00,580000.00,'Khách VIP – đặt phòng tầng cao','VNPAY','PARTIALLY_PAID','CONFIRMED',11020000.00,NULL,4,1,4),(2,4,NULL,0,'DT-2026-1023',NULL,3840000.00,0.00,NULL,'BANK','PAID','PAID',12800000.00,NULL,4,2,1),(3,2,NULL,0,'DT-2026-1022',NULL,7500000.00,0.00,NULL,'BANK','UNPAID','PENDING',25000000.00,NULL,4,3,9),(4,2,NULL,0,'DT-2026-1021',NULL,16800000.00,2800000.00,'KH VIP – ưu tiên ghế máy bay','BANK','PAID','CONFIRMED',56000000.00,NULL,4,5,12),(5,2,NULL,1,'DT-2026-1020',NULL,5124000.00,0.00,NULL,'MOMO','PARTIALLY_PAID','CONFIRMED',17080000.00,NULL,4,4,5),(6,1,NULL,0,'DT-2026-1019',NULL,840000.00,0.00,NULL,'VNPAY','PAID','PAID',2800000.00,NULL,4,6,13),(7,2,NULL,0,'DT-2026-0081',NULL,7500000.00,1250000.00,NULL,'BANK','PAID','COMPLETED',25000000.00,NULL,4,1,16),(8,4,NULL,2,'DT-2026-0080',NULL,16640000.00,0.00,NULL,'BANK','PAID','COMPLETED',16640000.00,NULL,4,2,15),(9,2,NULL,0,'DT-2026-0079',NULL,25000000.00,1250000.00,'Cặp đôi honeymoon','BANK','PAID','COMPLETED',25000000.00,NULL,4,5,17),(10,2,NULL,0,'DT-2026-1018',NULL,3480000.00,0.00,NULL,'BANK','UNPAID','PENDING',11600000.00,NULL,4,7,4),(11,2,NULL,0,'DT-2026-0011','2026-03-22 16:18:05.558826',1824000.00,320000.00,NULL,'BANK','UNPAID','PENDING',6080000.00,'2026-03-22 16:18:05.558826',7,1,2),(12,2,NULL,0,'DT-2026-0012','2026-03-26 21:31:52.816958',1920000.00,0.00,NULL,'BANK','UNPAID','PENDING',6400000.00,'2026-03-26 21:31:52.816958',12,1,2);
+INSERT INTO `bookings` VALUES (1,2,NULL,0,'DT-2026-1024',NULL,3306000.00,580000.00,'Khách VIP – đặt phòng tầng cao','VNPAY','PAID','PAID',11020000.00,'2026-04-11 16:47:14.070900',4,1,4),(2,4,NULL,0,'DT-2026-1023',NULL,3840000.00,0.00,NULL,'BANK','PAID','PAID',12800000.00,NULL,4,2,1),(3,2,NULL,0,'DT-2026-1022',NULL,7500000.00,0.00,NULL,'BANK','UNPAID','PENDING',25000000.00,NULL,4,3,9),(4,2,NULL,0,'DT-2026-1021',NULL,16800000.00,2800000.00,'KH VIP – ưu tiên ghế máy bay','BANK','PAID','PAID',56000000.00,'2026-04-11 16:47:52.070658',4,5,12),(5,2,NULL,1,'DT-2026-1020',NULL,5124000.00,0.00,NULL,'MOMO','PARTIALLY_PAID','CANCELLED',17080000.00,'2026-04-11 18:03:14.903944',4,4,5),(6,1,NULL,0,'DT-2026-1019',NULL,840000.00,0.00,NULL,'VNPAY','PAID','PAID',2800000.00,NULL,4,6,13),(7,2,NULL,0,'DT-2026-0081',NULL,7500000.00,1250000.00,NULL,'BANK','PAID','COMPLETED',25000000.00,NULL,4,1,16),(8,4,NULL,2,'DT-2026-0080',NULL,16640000.00,0.00,NULL,'BANK','PAID','COMPLETED',16640000.00,NULL,4,2,15),(9,2,NULL,0,'DT-2026-0079',NULL,25000000.00,1250000.00,'Cặp đôi honeymoon','BANK','PAID','COMPLETED',25000000.00,NULL,4,5,17),(10,2,NULL,0,'DT-2026-1018',NULL,3480000.00,0.00,NULL,'BANK','UNPAID','PENDING',11600000.00,NULL,4,7,4),(11,2,NULL,0,'DT-2026-0011','2026-03-22 16:18:05.558826',1824000.00,320000.00,NULL,'BANK','UNPAID','PENDING',6080000.00,'2026-03-22 16:18:05.558826',7,1,2),(12,2,NULL,0,'DT-2026-0012','2026-03-26 21:31:52.816958',1920000.00,0.00,NULL,'BANK','UNPAID','CONFIRMED',6400000.00,'2026-04-11 16:47:54.250908',12,1,2),(13,2,NULL,0,'DT-2026-0013','2026-04-11 18:24:36.945209',26910000.00,0.00,NULL,'BANK','PAID','PAID',89700000.00,'2026-04-11 18:25:11.991499',4,1,22),(14,2,NULL,0,'DT-2026-0014','2026-04-11 20:27:52.614157',25564500.00,4485000.00,NULL,'BANK','UNPAID','PENDING',85215000.00,'2026-04-11 20:27:52.614157',7,1,22),(15,2,NULL,0,'DT-2026-0015','2026-04-11 20:28:34.187590',25564500.00,4485000.00,NULL,'BANK','UNPAID','PENDING',85215000.00,'2026-04-11 20:28:34.187590',7,1,22),(16,9,NULL,0,'DT-2026-0016','2026-04-11 20:57:27.038489',115040250.00,20182500.00,NULL,'BANK','UNPAID','PENDING',383467500.00,'2026-04-11 20:57:27.038489',7,1,22),(17,2,NULL,0,'DT-2026-0017','2026-04-11 21:11:11.824784',26910000.00,0.00,NULL,'BANK','UNPAID','PENDING',89700000.00,'2026-04-11 21:11:11.824784',4,3,22);
 /*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `trg_check_schedule_capacity` BEFORE INSERT ON `bookings` FOR EACH ROW BEGIN
+    DECLARE v_capacity INT DEFAULT 0;
+    DECLARE v_booked   INT DEFAULT 0;
+    DECLARE v_need     INT DEFAULT 0;
+
+    SELECT capacity, booked
+    INTO   v_capacity, v_booked
+    FROM   tour_schedules
+    WHERE  id = NEW.tour_schedule_id;
+
+    SET v_need = NEW.adults + NEW.children;
+
+    IF (v_capacity - v_booked) < v_need THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Không đủ chỗ trống cho lịch khởi hành này';
+    END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `trg_booking_complete_loyalty` AFTER UPDATE ON `bookings` FOR EACH ROW BEGIN
+    DECLARE v_points      INT DEFAULT 0;
+    DECLARE v_new_balance INT DEFAULT 0;
+
+    IF NEW.status = 'COMPLETED' AND OLD.status != 'COMPLETED' THEN
+        -- 1 điểm / 10,000 VND
+        SET v_points = FLOOR(NEW.total_price / 10000);
+
+        UPDATE customers
+        SET loyalty_points = loyalty_points + v_points
+        WHERE id = NEW.customer_id;
+
+        SELECT loyalty_points INTO v_new_balance
+        FROM customers WHERE id = NEW.customer_id;
+
+        INSERT INTO loyalty_transactions
+            (customer_id, type, points, balance_after, ref_type, ref_id, description)
+        VALUES
+            (NEW.customer_id, 'EARN', v_points, v_new_balance,
+             'BOOKING', NEW.id,
+             CONCAT('Tích điểm hoàn thành đơn ', NEW.code));
+    END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `customer_reviews`
@@ -206,7 +276,7 @@ CREATE TABLE `customers` (
 
 LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
-INSERT INTO `customers` VALUES (1,'45 Nguyễn Trãi, Q.1, TP.HCM','079185012345','KH-00001',NULL,'1985-08-12','an.nguyen@gmail.com','Nguyễn Văn An','MALE',2488,'0901234567','Biển đảo, nghỉ dưỡng cao cấp','LOYAL','ZALO','Phòng không hút thuốc, tầng cao','2026-03-26 21:31:52.863354',7),(2,'12 Lê Duẩn, Q.1, TP.HCM','079190054321','KH-00002',NULL,'1990-03-25','bich.tran@yahoo.com','Trần Thị Bích','FEMALE',650,'0912456789','Tour gia đình, trong nước','LOYAL','WEBSITE','Phòng rộng cho gia đình 4 người',NULL,8),(3,'78 Võ Văn Tần, Q.3, TP.HCM','079188067890','KH-00003',NULL,'1988-11-05','nam.le@company.vn','Lê Hoàng Nam','MALE',250,'0978111222','Tour quốc tế, văn hóa','NEW','FACEBOOK',NULL,NULL,9),(4,'33 Cách Mạng Tháng 8, Q.10, TP.HCM','079195023456','KH-00004',NULL,'1995-06-18','lan.pham@gmail.com','Phạm Thị Lan','FEMALE',58,'0909333444',NULL,'NEW','ZALO',NULL,NULL,NULL),(5,'15 Đinh Tiên Hoàng, Q. Bình Thạnh','079182034567','KH-00005',NULL,'1982-04-30','diem.vo@outlook.com','Võ Thị Diễm','FEMALE',2450,'0888555666','Châu Âu, Nhật Bản, nghỉ dưỡng','LOYAL','REFERRAL','Nhu cầu phòng đặc biệt',NULL,NULL),(6,'88 Phan Đình Phùng, Q. Phú Nhuận','079192078901','KH-00006',NULL,'1992-09-14','tuan.ng@gmail.com','Nguyễn Minh Tuấn','MALE',180,'0877444555','Mạo hiểm, leo núi','NEW','WEBSITE',NULL,NULL,NULL),(7,'23 Trần Hưng Đạo, Q.5, TP.HCM','079187090123','KH-00007',NULL,'1987-12-21','hanh.ht@mail.vn','Hoàng Thị Hạnh','FEMALE',420,'0866333444','Tour biển, cặp đôi','NEW','DIRECT','Phòng honeymoon nếu có',NULL,NULL),(8,'56 Nguyễn Văn Cừ, Q.5, TP.HCM','079191045678','KH-00008',NULL,'1991-07-07','hung.dv@gmail.com','Đặng Văn Hùng','MALE',30,'0855222333',NULL,'NEW','ZALO',NULL,NULL,NULL);
+INSERT INTO `customers` VALUES (1,'45 Nguyễn Trãi, Q.1, TP.HCM','079185012345','KH-00001',NULL,'1985-08-12','an.nguyen@gmail.com','Nguyễn Văn An','MALE',66846,'0901234567','Biển đảo, nghỉ dưỡng cao cấp','VIP','ZALO','Phòng không hút thuốc, tầng cao','2026-04-11 20:57:27.114698',7),(2,'12 Lê Duẩn, Q.1, TP.HCM','079190054321','KH-00002',NULL,'1990-03-25','bich.tran@yahoo.com','Trần Thị Bích','FEMALE',650,'0912456789','Tour gia đình, trong nước','LOYAL','WEBSITE','Phòng rộng cho gia đình 4 người',NULL,8),(3,'78 Võ Văn Tần, Q.3, TP.HCM','079188067890','KH-00003',NULL,'1988-11-05','nam.le@company.vn','Lê Hoàng Nam','MALE',9220,'0978111222','Tour quốc tế, văn hóa','VIP','FACEBOOK',NULL,'2026-04-11 21:11:11.834821',9),(4,'33 Cách Mạng Tháng 8, Q.10, TP.HCM','079195023456','KH-00004',NULL,'1995-06-18','lan.pham@gmail.com','Phạm Thị Lan','FEMALE',58,'0909333444',NULL,'NEW','ZALO',NULL,NULL,NULL),(5,'15 Đinh Tiên Hoàng, Q. Bình Thạnh','079182034567','KH-00005',NULL,'1982-04-30','diem.vo@outlook.com','Võ Thị Diễm','FEMALE',2450,'0888555666','Châu Âu, Nhật Bản, nghỉ dưỡng','LOYAL','REFERRAL','Nhu cầu phòng đặc biệt',NULL,NULL),(6,'88 Phan Đình Phùng, Q. Phú Nhuận','079192078901','KH-00006',NULL,'1992-09-14','tuan.ng@gmail.com','Nguyễn Minh Tuấn','MALE',180,'0877444555','Mạo hiểm, leo núi','NEW','WEBSITE',NULL,NULL,NULL),(7,'23 Trần Hưng Đạo, Q.5, TP.HCM','079187090123','KH-00007',NULL,'1987-12-21','hanh.ht@mail.vn','Hoàng Thị Hạnh','FEMALE',420,'0866333444','Tour biển, cặp đôi','NEW','DIRECT','Phòng honeymoon nếu có',NULL,NULL),(8,'56 Nguyễn Văn Cừ, Q.5, TP.HCM','079191045678','KH-00008',NULL,'1991-07-07','hung.dv@gmail.com','Đặng Văn Hùng','MALE',30,'0855222333',NULL,'NEW','ZALO',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -316,6 +386,50 @@ LOCK TABLES `export_details` WRITE;
 INSERT INTO `export_details` VALUES (1,126000000.00,70,1800000.00,1,1),(2,105000000.00,84,1250000.00,3,2),(3,10080000.00,84,120000.00,5,2),(4,16000000.00,10,1600000.00,4,3),(5,7500000.00,10,750000.00,6,3),(6,1200000.00,10,120000.00,5,3);
 /*!40000 ALTER TABLE `export_details` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `trg_after_export_insert` AFTER INSERT ON `export_details` FOR EACH ROW BEGIN
+    UPDATE products
+    SET stock_qty = stock_qty - NEW.qty
+    WHERE id = NEW.product_id;
+
+    UPDATE products
+    SET status = 'OUT_OF_STOCK'
+    WHERE id = NEW.product_id AND stock_qty <= 0;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `trg_after_export_detail_insert` AFTER INSERT ON `export_details` FOR EACH ROW BEGIN
+    UPDATE products
+    SET
+        stock_qty = stock_qty - NEW.qty,
+        status    = IF(stock_qty - NEW.qty <= 0, 'OUT_OF_STOCK', status)
+    WHERE id = NEW.product_id;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `export_vouchers`
@@ -423,6 +537,29 @@ LOCK TABLES `import_vouchers` WRITE;
 INSERT INTO `import_vouchers` VALUES (1,NULL,'PN-2026-031',NULL,'2026-03-15',NULL,'APPROVED',47500000.00,NULL,3,2),(2,NULL,'PN-2026-030',NULL,'2026-03-14',NULL,'APPROVED',36000000.00,NULL,3,1),(3,NULL,'PN-2026-029',NULL,'2026-03-10',NULL,'APPROVED',16000000.00,NULL,3,3),(4,NULL,'PN-2026-028',NULL,'2026-03-05',NULL,'APPROVED',30000000.00,NULL,3,4),(5,NULL,'PN-2026-027',NULL,'2026-02-28',NULL,'APPROVED',30000000.00,NULL,3,7),(6,NULL,'PN-2026-026',NULL,'2026-02-20',NULL,'PENDING',17500000.00,NULL,3,5);
 /*!40000 ALTER TABLE `import_vouchers` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`%`*/ /*!50003 TRIGGER `trg_after_import_approve` AFTER UPDATE ON `import_vouchers` FOR EACH ROW BEGIN
+    IF NEW.status = 'APPROVED' AND OLD.status != 'APPROVED' THEN
+        UPDATE products p
+        INNER JOIN import_details d ON p.id = d.product_id
+        SET p.stock_qty = p.stock_qty + d.qty,
+            p.status    = IF(p.stock_qty + d.qty > 0, 'ACTIVE', p.status)
+        WHERE d.voucher_id = NEW.id;
+    END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `leave_requests`
@@ -623,7 +760,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,1200000.00,'DV001',NULL,NULL,5,'Phòng Deluxe Sea View – Mường Thanh ĐN',1800000.00,'ACTIVE',45,'HOTEL','Đêm',NULL,1),(2,900000.00,'DV002',NULL,NULL,5,'Phòng Superior – Mường Thanh ĐN',1400000.00,'ACTIVE',30,'HOTEL','Đêm',NULL,1),(3,950000.00,'DV003',NULL,NULL,5,'Vé bay HAN-DAD khứ hồi – VNA',1250000.00,'ACTIVE',12,'FLIGHT','Vé',NULL,2),(4,1200000.00,'DV004',NULL,NULL,5,'Vé bay SGN-PQC khứ hồi – VNA',1600000.00,'ACTIVE',20,'FLIGHT','Vé',NULL,2),(5,80000.00,'DV005',NULL,NULL,20,'Set ăn sáng buffet – Biển Xanh',120000.00,'ACTIVE',200,'FOOD','Suất',NULL,3),(6,500000.00,'DV006',NULL,NULL,10,'Vé VinWonders Phú Quốc',750000.00,'ACTIVE',60,'ACTIVITY','Vé',NULL,4),(7,3500000.00,'DV007',NULL,NULL,2,'Xe 29 chỗ HCM – Nha Trang',5000000.00,'ACTIVE',8,'VEHICLE','Chuyến',NULL,5),(8,3000000.00,'DV008',NULL,NULL,3,'Phòng Beach Villa – Vinpearl PQ',4500000.00,'ACTIVE',15,'HOTEL','Đêm',NULL,6),(9,750000.00,'DV009',NULL,NULL,5,'Vé bay SGN-HAN khứ hồi – VietJet',1050000.00,'ACTIVE',40,'FLIGHT','Vé',NULL,7),(10,200000.00,'DV010',NULL,NULL,15,'Bữa tối BBQ bãi biển – Biển Xanh',320000.00,'ACTIVE',100,'FOOD','Suất',NULL,3),(11,350000.00,'DV011',NULL,NULL,10,'Vé lặn ngắm san hô – Phú Quốc',550000.00,'ACTIVE',50,'ACTIVITY','Vé',NULL,4),(12,700000.00,'DV012',NULL,NULL,5,'Phòng Standard – Mường Thanh ĐN',1100000.00,'OUT_OF_STOCK',3,'HOTEL','Đêm',NULL,1);
+INSERT INTO `products` VALUES (1,1250000.00,'DV001',NULL,NULL,5,'Phòng Deluxe Sea View – Mường Thanh ĐN',1800000.00,'ACTIVE',45,'HOTEL','Đêm','2026-04-01 11:42:39.215453',1),(2,900000.00,'DV002',NULL,NULL,5,'Phòng Superior – Mường Thanh ĐN',1400000.00,'ACTIVE',30,'HOTEL','Đêm',NULL,1),(3,950000.00,'DV003',NULL,NULL,5,'Vé bay HAN-DAD khứ hồi – VNA',1250000.00,'ACTIVE',12,'FLIGHT','Vé',NULL,2),(4,1200000.00,'DV004',NULL,NULL,5,'Vé bay SGN-PQC khứ hồi – VNA',1600000.00,'ACTIVE',20,'FLIGHT','Vé',NULL,2),(5,80000.00,'DV005',NULL,NULL,20,'Set ăn sáng buffet – Biển Xanh',120000.00,'ACTIVE',200,'FOOD','Suất',NULL,3),(6,500000.00,'DV006',NULL,NULL,10,'Vé VinWonders Phú Quốc',750000.00,'ACTIVE',60,'ACTIVITY','Vé',NULL,4),(7,3500000.00,'DV007',NULL,NULL,2,'Xe 29 chỗ HCM – Nha Trang',5000000.00,'ACTIVE',8,'VEHICLE','Chuyến',NULL,5),(8,3000000.00,'DV008',NULL,NULL,3,'Phòng Beach Villa – Vinpearl PQ',4500000.00,'ACTIVE',15,'HOTEL','Đêm',NULL,6),(9,750000.00,'DV009',NULL,NULL,5,'Vé bay SGN-HAN khứ hồi – VietJet',1050000.00,'ACTIVE',40,'FLIGHT','Vé',NULL,7),(10,200000.00,'DV010',NULL,NULL,15,'Bữa tối BBQ bãi biển – Biển Xanh',320000.00,'ACTIVE',100,'FOOD','Suất',NULL,3),(11,350000.00,'DV011',NULL,NULL,10,'Vé lặn ngắm san hô – Phú Quốc',550000.00,'ACTIVE',50,'ACTIVITY','Vé',NULL,4),(12,700000.00,'DV012',NULL,NULL,5,'Phòng Standard – Mường Thanh ĐN',1100000.00,'OUT_OF_STOCK',3,'HOTEL','Đêm',NULL,1);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -726,7 +863,7 @@ CREATE TABLE `tour_schedules` (
   KEY `FKa7bvkxeyqhbppi24qimguq9un` (`tour_id`),
   CONSTRAINT `FKa7bvkxeyqhbppi24qimguq9un` FOREIGN KEY (`tour_id`) REFERENCES `tours` (`id`),
   CONSTRAINT `FKtrtjfluuntkva634d9cso62cu` FOREIGN KEY (`guide_id`) REFERENCES `employees` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -735,8 +872,43 @@ CREATE TABLE `tour_schedules` (
 
 LOCK TABLES `tour_schedules` WRITE;
 /*!40000 ALTER TABLE `tour_schedules` DISABLE KEYS */;
-INSERT INTO `tour_schedules` VALUES (1,26,40,NULL,'2026-03-20',NULL,'OPEN',2,1),(2,16,40,NULL,'2026-04-05',NULL,'OPEN',6,1),(3,0,40,NULL,'2026-04-20',NULL,'OPEN',NULL,1),(4,27,35,NULL,'2026-03-25',NULL,'OPEN',2,2),(5,5,35,NULL,'2026-04-10',NULL,'OPEN',6,2),(6,0,35,NULL,'2026-05-01',NULL,'OPEN',NULL,2),(7,8,30,NULL,'2026-03-28',NULL,'OPEN',2,3),(8,0,30,NULL,'2026-04-15',NULL,'OPEN',NULL,3),(9,22,25,NULL,'2026-04-01',NULL,'OPEN',6,4),(10,0,25,NULL,'2026-05-10',NULL,'OPEN',NULL,4),(11,11,40,NULL,'2026-04-15',NULL,'OPEN',2,5),(12,5,20,NULL,'2026-04-20',NULL,'OPEN',6,6),(13,8,35,NULL,'2026-03-28',NULL,'OPEN',2,7),(14,0,20,NULL,'2026-06-01',NULL,'OPEN',NULL,8),(15,40,40,NULL,'2026-01-15',NULL,'COMPLETED',2,1),(16,35,35,NULL,'2026-01-20',NULL,'COMPLETED',6,2),(17,22,25,NULL,'2026-02-14',NULL,'COMPLETED',2,4),(18,0,50,'2026-03-26 22:11:56.984514','2026-03-26',NULL,'OPEN',NULL,1),(19,0,50,'2026-03-26 22:12:42.782361','1901-01-03',NULL,'OPEN',NULL,1);
+INSERT INTO `tour_schedules` VALUES (1,26,40,NULL,'2026-03-20',NULL,'OPEN',2,1),(2,16,40,NULL,'2026-04-05',NULL,'OPEN',6,1),(3,0,40,NULL,'2026-04-20',NULL,'OPEN',NULL,1),(4,27,35,NULL,'2026-03-25',NULL,'OPEN',2,2),(5,5,35,NULL,'2026-04-10',NULL,'OPEN',6,2),(6,0,35,NULL,'2026-05-01',NULL,'OPEN',NULL,2),(7,8,30,NULL,'2026-03-28',NULL,'OPEN',2,3),(8,0,30,NULL,'2026-04-15',NULL,'OPEN',NULL,3),(9,22,25,NULL,'2026-04-01',NULL,'OPEN',6,4),(10,0,25,NULL,'2026-05-10',NULL,'OPEN',NULL,4),(11,11,40,NULL,'2026-04-15',NULL,'OPEN',2,5),(12,5,20,NULL,'2026-04-20',NULL,'OPEN',6,6),(13,8,35,NULL,'2026-03-28',NULL,'OPEN',2,7),(14,0,20,NULL,'2026-06-01',NULL,'OPEN',NULL,8),(15,40,40,NULL,'2026-01-15',NULL,'COMPLETED',2,1),(16,35,35,NULL,'2026-01-20',NULL,'COMPLETED',6,2),(17,22,25,NULL,'2026-02-14',NULL,'COMPLETED',2,4),(18,0,50,'2026-03-26 22:11:56.984514','2026-03-26',NULL,'OPEN',NULL,1),(19,0,50,'2026-03-26 22:12:42.782361','1901-01-03',NULL,'OPEN',NULL,1),(20,0,25,'2026-04-08 00:14:49.801291','2026-04-08',NULL,'OPEN',NULL,4),(21,0,25,'2026-04-08 00:15:34.943759','2026-04-08',NULL,'OPEN',NULL,1),(22,17,35,'2026-04-11 18:05:34.721393','2026-04-20',NULL,'OPEN',NULL,7);
 /*!40000 ALTER TABLE `tour_schedules` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tour_services`
+--
+
+DROP TABLE IF EXISTS `tour_services`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tour_services` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tour_id` bigint NOT NULL COMMENT 'Tour chứa dịch vụ này',
+  `product_id` bigint NOT NULL COMMENT 'Dịch vụ thuộc tour',
+  `quantity` int NOT NULL DEFAULT '1' COMMENT 'Số lượng dịch vụ dùng cho 1 tour',
+  `note` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Ghi chú riêng (vd: phòng đôi, bữa trưa...)',
+  `sort_order` int NOT NULL DEFAULT '0' COMMENT 'Thứ tự hiển thị trong tour',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_tour_product` (`tour_id`,`product_id`),
+  UNIQUE KEY `UKc90hfp0g3tyu8b4siwbiwd2ba` (`tour_id`,`product_id`),
+  KEY `idx_ts_tour` (`tour_id`),
+  KEY `idx_ts_product` (`product_id`),
+  CONSTRAINT `fk_ts_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_ts_tour` FOREIGN KEY (`tour_id`) REFERENCES `tours` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Bảng trung gian: 1 tour gồm nhiều dịch vụ, 1 dịch vụ thuộc nhiều tour';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tour_services`
+--
+
+LOCK TABLES `tour_services` WRITE;
+/*!40000 ALTER TABLE `tour_services` DISABLE KEYS */;
+INSERT INTO `tour_services` VALUES (1,1,3,1,'Vé máy bay khứ hồi HAN-DAD mỗi người',1,'2026-04-01 05:22:25'),(2,1,1,2,'Phòng Deluxe – 2 đêm',2,'2026-04-01 05:22:25'),(3,1,5,6,'Ăn sáng 3 ngày × 2 người',3,'2026-04-01 05:22:25'),(4,2,4,1,'Vé bay khứ hồi SGN-PQC mỗi người',1,'2026-04-01 05:22:25'),(5,2,1,3,'Phòng Deluxe – 3 đêm',2,'2026-04-01 05:22:25'),(6,2,6,1,'Vé VinWonders (tham quan)',3,'2026-04-01 05:22:25'),(7,2,5,8,'Ăn sáng 4 ngày × 2 người',4,'2026-04-01 05:22:25'),(8,3,9,1,'Vé bay khứ hồi SGN-HAN mỗi người',1,'2026-04-01 05:22:25'),(9,3,2,2,'Phòng Superior – 2 đêm',2,'2026-04-01 05:22:25'),(10,3,5,6,'Ăn sáng 3 ngày',3,'2026-04-01 05:22:25'),(11,4,7,1,'Xe đưa đón sân bay và tham quan',1,'2026-04-01 05:22:25'),(12,4,5,10,'Ăn sáng 5 ngày',2,'2026-04-01 05:22:25'),(13,4,10,2,'Bữa tối BBQ bãi biển Pattaya',3,'2026-04-01 05:22:25'),(15,7,3,25,'vé máy bay Đà Lạt',1,'2026-04-11 18:21:59'),(16,7,5,25,'Ăn',2,'2026-04-11 18:22:14'),(17,7,11,25,'chơi',3,'2026-04-11 18:22:31');
+/*!40000 ALTER TABLE `tour_services` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -780,7 +952,7 @@ CREATE TABLE `tours` (
 
 LOCK TABLES `tours` WRITE;
 /*!40000 ALTER TABLE `tours` DISABLE KEYS */;
-INSERT INTO `tours` VALUES (1,40,'T001',NULL,3,'Khám phá thành phố biển Đà Nẵng và phố cổ Hội An huyền bí. Tour lý tưởng cho gia đình và cặp đôi.','Đà Nẵng','Vé máy bay khứ hồi, KS 3 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Đón sân bay, tham quan Bà Nà Hills, cáp treo, Cầu Vàng\nNgày 2: Phố cổ Hội An, thả đèn lồng sông Hoài\nNgày 3: Bãi biển Mỹ Khê, mua sắm, bay về','Đà Nẵng – Hội An 3N2Đ – Phố Cổ Huyền Bí',2,'Vé tham quan riêng lẻ, đồ uống, chi phí cá nhân','TP.HCM',3200000.00,2000000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(2,35,'T002',NULL,4,'Thiên đường nghỉ dưỡng Phú Quốc với bãi biển trong xanh và VinWonders đẳng cấp.','Phú Quốc','Vé máy bay khứ hồi, resort 4 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Đón sân bay Phú Quốc, nhận phòng resort\nNgày 2: Lặn ngắm san hô, bãi Sao, chợ đêm Dinh Cậu\nNgày 3: VinWonders, Safari\nNgày 4: Tự do mua sắm, bay về','Phú Quốc 4N3Đ – Hòn Đảo Ngọc',3,'Vé VinWonders, đồ uống, massage','TP.HCM',5800000.00,3500000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(3,30,'T003',NULL,3,'Khám phá Sapa thơ mộng giữa mùa lúa chín vàng với ruộng bậc thang kỳ vĩ.','Sapa','Vé máy bay, KS 3 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Bay HCM → Hà Nội, tàu/xe Sapa\nNgày 2: Bản Cát Cát, ruộng bậc thang, chợ Sapa\nNgày 3: Chinh phục Fansipan, về Hà Nội, bay về HCM','Hà Nội – Sapa 3N2Đ – Mùa Lúa Chín',2,'Vé cáp treo Fansipan, đồ uống','TP.HCM',4100000.00,2500000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(4,25,'T004',NULL,5,'Hành trình khám phá xứ sở chùa vàng với Bangkok náo nhiệt và Pattaya biển xanh.','Thái Lan','Vé máy bay, KS 4 sao, 3 bữa/ngày, xe đưa đón, HDV người Việt, bảo hiểm, visa','Ngày 1: Bay đến Bangkok, nhận phòng\nNgày 2: Cung điện Hoàng gia, chùa Phật Ngọc, chợ nổi\nNgày 3: Chuyển Pattaya, biển\nNgày 4: Show Alcazar, mua sắm\nNgày 5: Về Bangkok, bay về','Bangkok – Pattaya 5N4Đ – Đất Thái Kỳ Diệu',4,'Vé tham quan riêng, đồ uống, tips HDV','TP.HCM',12500000.00,8000000.00,'ACTIVE',NULL,'INTERNATIONAL',NULL,4),(5,40,'T005',NULL,5,'Nghỉ dưỡng tại thiên đường biển Nha Trang với các hoạt động đa dạng trên biển.','Nha Trang','Xe giường nằm khứ hồi, KS 3 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Đón xe Nha Trang, nhận phòng resort\nNgày 2: Lặn ngắm san hô, đảo Hòn Mun\nNgày 3: Tháp Bà Ponagar, bùn khoáng nóng\nNgày 4: Vinpearl Land\nNgày 5: Mua sắm, về','Nha Trang 5N4Đ – Biển Xanh Cát Trắng',4,'Vé Vinpearl, đồ uống','TP.HCM',6200000.00,4000000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(6,20,'T006',NULL,7,'Hành trình Nhật Bản mùa hoa anh đào nở rộ với Tokyo hiện đại và Kyoto cổ kính.','Nhật Bản','Vé máy bay, KS 3-4 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm, visa, shinkansen','Ngày 1: Bay đến Tokyo\nNgày 2: Shinjuku, Harajuku, Shibuya\nNgày 3: Núi Phú Sĩ, Hakone\nNgày 4: Chuyển Kyoto, chùa Kinkaku-ji\nNgày 5: Nara, chùa Todai-ji\nNgày 6: Osaka, mua sắm\nNgày 7: Bay về','Tokyo – Kyoto – Osaka 7N6Đ – Mùa Hoa Anh Đào',6,'Đồ ăn thêm, tips, chi phí cá nhân','TP.HCM',28000000.00,18000000.00,'ACTIVE',NULL,'INTERNATIONAL',NULL,4),(7,35,'T007',NULL,3,'Thành phố ngàn hoa với khí hậu mát mẻ quanh năm, lý tưởng cho gia đình.','Đà Lạt','Xe khách, KS 3 sao, 3 bữa, xe đưa đón, HDV, bảo hiểm','Ngày 1: Xe Đà Lạt, hồ Xuân Hương, chợ đêm\nNgày 2: Thung lũng Tình Yêu, làng Cù Lần\nNgày 3: Vườn hoa thành phố, về HCM','Đà Lạt 3N2Đ – Thành Phố Ngàn Hoa',2,'Vé tham quan riêng, đồ uống','TP.HCM',2800000.00,1800000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(8,20,'T008',NULL,5,'Hành trình khám phá 2 quốc gia Singapore tiên tiến và Malaysia đa văn hóa.','Singapore','Vé máy bay, KS 4 sao, 3 bữa, xe đưa đón, HDV, bảo hiểm, visa','Ngày 1: Bay Singapore\nNgày 2: Gardens by the Bay, Sentosa\nNgày 3: Chuyển Kuala Lumpur\nNgày 4: Tháp đôi Petronas, mua sắm\nNgày 5: Bay về','Singapore – Malaysia 5N4Đ – Đông Nam Á Sáng Ngời',4,'Vé tham quan riêng, tips','TP.HCM',18000000.00,12000000.00,'INACTIVE',NULL,'INTERNATIONAL',NULL,4);
+INSERT INTO `tours` VALUES (1,40,'T001',NULL,3,'Khám phá thành phố biển Đà Nẵng và phố cổ Hội An huyền bí. Tour lý tưởng cho gia đình và cặp đôi.','Đà Nẵng','Vé máy bay khứ hồi, KS 3 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Đón sân bay, tham quan Bà Nà Hills, cáp treo, Cầu Vàng\nNgày 2: Phố cổ Hội An, thả đèn lồng sông Hoài\nNgày 3: Bãi biển Mỹ Khê, mua sắm, bay về','Đà Nẵng – Hội An 3N2Đ – Phố Cổ Huyền Bí',2,'Vé tham quan riêng lẻ, đồ uống, chi phí cá nhân','TP.HCM',3200000.00,2000000.00,'FULL',NULL,'DOMESTIC','2026-04-08 00:16:19.468009',4),(2,35,'T002',NULL,4,'Thiên đường nghỉ dưỡng Phú Quốc với bãi biển trong xanh và VinWonders đẳng cấp.','Phú Quốc','Vé máy bay khứ hồi, resort 4 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Đón sân bay Phú Quốc, nhận phòng resort\nNgày 2: Lặn ngắm san hô, bãi Sao, chợ đêm Dinh Cậu\nNgày 3: VinWonders, Safari\nNgày 4: Tự do mua sắm, bay về','Phú Quốc 4N3Đ – Hòn Đảo Ngọc',3,'Vé VinWonders, đồ uống, massage','TP.HCM',5800000.00,3500000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(3,30,'T003',NULL,3,'Khám phá Sapa thơ mộng giữa mùa lúa chín vàng với ruộng bậc thang kỳ vĩ.','Sapa','Vé máy bay, KS 3 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Bay HCM → Hà Nội, tàu/xe Sapa\nNgày 2: Bản Cát Cát, ruộng bậc thang, chợ Sapa\nNgày 3: Chinh phục Fansipan, về Hà Nội, bay về HCM','Hà Nội – Sapa 3N2Đ – Mùa Lúa Chín',2,'Vé cáp treo Fansipan, đồ uống','TP.HCM',4100000.00,2500000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(4,25,'T004',NULL,5,'Hành trình khám phá xứ sở chùa vàng với Bangkok náo nhiệt và Pattaya biển xanh.','Thái Lan','Vé máy bay, KS 4 sao, 3 bữa/ngày, xe đưa đón, HDV người Việt, bảo hiểm, visa','Ngày 1: Bay đến Bangkok, nhận phòng\nNgày 2: Cung điện Hoàng gia, chùa Phật Ngọc, chợ nổi\nNgày 3: Chuyển Pattaya, biển\nNgày 4: Show Alcazar, mua sắm\nNgày 5: Về Bangkok, bay về','Bangkok – Pattaya 5N4Đ – Đất Thái Kỳ Diệu',4,'Vé tham quan riêng, đồ uống, tips HDV','TP.HCM',12500000.00,8000000.00,'ACTIVE',NULL,'INTERNATIONAL',NULL,4),(5,40,'T005',NULL,5,'Nghỉ dưỡng tại thiên đường biển Nha Trang với các hoạt động đa dạng trên biển.','Nha Trang','Xe giường nằm khứ hồi, KS 3 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm','Ngày 1: Đón xe Nha Trang, nhận phòng resort\nNgày 2: Lặn ngắm san hô, đảo Hòn Mun\nNgày 3: Tháp Bà Ponagar, bùn khoáng nóng\nNgày 4: Vinpearl Land\nNgày 5: Mua sắm, về','Nha Trang 5N4Đ – Biển Xanh Cát Trắng',4,'Vé Vinpearl, đồ uống','TP.HCM',6200000.00,4000000.00,'ACTIVE',NULL,'DOMESTIC',NULL,4),(6,20,'T006',NULL,7,'Hành trình Nhật Bản mùa hoa anh đào nở rộ với Tokyo hiện đại và Kyoto cổ kính.','Nhật Bản','Vé máy bay, KS 3-4 sao, 3 bữa/ngày, xe đưa đón, HDV, bảo hiểm, visa, shinkansen','Ngày 1: Bay đến Tokyo\nNgày 2: Shinjuku, Harajuku, Shibuya\nNgày 3: Núi Phú Sĩ, Hakone\nNgày 4: Chuyển Kyoto, chùa Kinkaku-ji\nNgày 5: Nara, chùa Todai-ji\nNgày 6: Osaka, mua sắm\nNgày 7: Bay về','Tokyo – Kyoto – Osaka 7N6Đ – Mùa Hoa Anh Đào',6,'Đồ ăn thêm, tips, chi phí cá nhân','TP.HCM',28000000.00,18000000.00,'ACTIVE',NULL,'INTERNATIONAL',NULL,4),(7,35,'T007',NULL,3,'Thành phố ngàn hoa với khí hậu mát mẻ quanh năm, lý tưởng cho gia đình.','Đà Lạt','Xe khách, KS 3 sao, 3 bữa, xe đưa đón, HDV, bảo hiểm','Ngày 1: Xe Đà Lạt, hồ Xuân Hương, chợ đêm\nNgày 2: Thung lũng Tình Yêu, làng Cù Lần\nNgày 3: Vườn hoa thành phố, về HCM','Đà Lạt 3N2Đ – Thành Phố Ngàn Hoa',2,'Vé tham quan riêng, đồ uống','TP.HCM',44850000.00,1800000.00,'ACTIVE',NULL,'DOMESTIC','2026-04-11 18:23:38.222966',4),(8,20,'T008',NULL,5,'Hành trình khám phá 2 quốc gia Singapore tiên tiến và Malaysia đa văn hóa.','Singapore','Vé máy bay, KS 4 sao, 3 bữa, xe đưa đón, HDV, bảo hiểm, visa','Ngày 1: Bay Singapore\nNgày 2: Gardens by the Bay, Sentosa\nNgày 3: Chuyển Kuala Lumpur\nNgày 4: Tháp đôi Petronas, mua sắm\nNgày 5: Bay về','Singapore – Malaysia 5N4Đ – Đông Nam Á Sáng Ngời',4,'Vé tham quan riêng, tips','TP.HCM',18000000.00,12000000.00,'INACTIVE',NULL,'INTERNATIONAL',NULL,4);
 /*!40000 ALTER TABLE `tours` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -798,14 +970,14 @@ CREATE TABLE `users` (
   `full_name` varchar(100) NOT NULL,
   `last_login_at` datetime(6) DEFAULT NULL,
   `password_hash` varchar(255) NOT NULL,
-  `role` enum('ADMIN','HR_MANAGER','WAREHOUSE_MANAGER','SALES_MANAGER','EMPLOYEE','CUSTOMER') NOT NULL,
+  `role` enum('ADMIN','HR_MANAGER','WAREHOUSE_MANAGER','SALES_MANAGER','EMPLOYEE','CUSTOMER','USER') DEFAULT NULL,
   `status` enum('ACTIVE','LOCKED','INACTIVE') NOT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `username` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_r43af9ap4edm43mmtq01oddj6` (`username`),
   UNIQUE KEY `UK_6dotkott2kjsp8vw4d0m25fb7` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -814,7 +986,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,NULL,'admin@tourpro.vn','Quản trị viên','2026-03-26 22:19:13.670982','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','ADMIN','ACTIVE','2026-03-26 22:19:13.672629','admin'),(2,NULL,'hr@tourpro.vn','Trần Thị Hương','2026-03-27 13:53:10.001596','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','HR_MANAGER','ACTIVE','2026-03-27 13:53:10.006347','hr_manager'),(3,NULL,'warehouse@tourpro.vn','Lê Văn Kho','2026-03-26 22:23:43.272052','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','WAREHOUSE_MANAGER','ACTIVE','2026-03-26 22:23:43.274248','warehouse1'),(4,NULL,'sales@tourpro.vn','Phạm Thị Kinh Doanh','2026-03-26 22:17:32.588823','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','SALES_MANAGER','ACTIVE','2026-03-26 22:17:32.590472','sales1'),(5,NULL,'hoa@tourpro.vn','Nguyễn Thị Hoa','2026-03-26 22:15:48.173365','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','EMPLOYEE','ACTIVE','2026-03-26 22:15:48.175000','nv_hoa'),(6,NULL,'binh@tourpro.vn','Trần Văn Bình',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','EMPLOYEE','ACTIVE',NULL,'nv_binh'),(7,NULL,'an@gmail.com','Nguyễn Văn An','2026-03-26 21:42:15.779070','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','CUSTOMER','ACTIVE','2026-03-26 21:42:15.781269','cust_an'),(8,NULL,'bich@yahoo.com','Trần Thị Bích',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','CUSTOMER','ACTIVE',NULL,'cust_bich'),(9,NULL,'nam@gmail.com','Lê Hoàng Nam',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','CUSTOMER','ACTIVE',NULL,'cust_nam'),(10,NULL,'sales2@tourpro.vn','Nguyễn Văn Sales',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','SALES_MANAGER','LOCKED',NULL,'sales2'),(12,'2026-03-26 21:04:03.975260','tranphap0407@gmail.com','Trần Anh Pháp','2026-03-26 21:31:27.208816','$2a$10$/vpMl1s3Vx4m4TTOgtYtceVEztXc7r76iouBf0BSmb5Kv3QSykliq','CUSTOMER','ACTIVE','2026-03-26 21:31:27.211122','tranphap0407@gmail.com');
+INSERT INTO `users` VALUES (1,NULL,'admin@tourpro.vn','Quản trị viên','2026-04-11 18:42:51.690288','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','ADMIN','ACTIVE','2026-04-11 18:42:51.693341','admin'),(2,NULL,'hr@tourpro.vn','Trần Thị Hương','2026-04-11 19:10:42.288833','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','HR_MANAGER','ACTIVE','2026-04-11 19:10:42.291076','hr_manager'),(3,NULL,'warehouse@tourpro.vn','Lê Văn Kho','2026-04-08 00:18:09.778654','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','WAREHOUSE_MANAGER','ACTIVE','2026-04-08 00:18:09.780286','warehouse1'),(4,NULL,'sales@tourpro.vn','Phạm Thị Kinh Doanh','2026-04-11 20:57:35.659714','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','SALES_MANAGER','ACTIVE','2026-04-11 20:57:35.662464','sales1'),(5,NULL,'hoa@tourpro.vn','Nguyễn Thị Hoa','2026-04-11 18:33:44.439209','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','EMPLOYEE','ACTIVE','2026-04-11 18:33:44.440788','nv_hoa'),(6,NULL,'binh@tourpro.vn','Trần Văn Bình',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','EMPLOYEE','ACTIVE',NULL,'nv_binh'),(7,NULL,'an@gmail.com','Nguyễn Văn An','2026-04-11 20:32:55.486831','$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','CUSTOMER','ACTIVE','2026-04-11 20:32:55.488453','cust_an'),(8,NULL,'bich@yahoo.com','Trần Thị Bích',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','CUSTOMER','ACTIVE',NULL,'cust_bich'),(9,NULL,'nam@gmail.com','Lê Hoàng Nam',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','CUSTOMER','ACTIVE',NULL,'cust_nam'),(10,NULL,'sales2@tourpro.vn','Nguyễn Văn Sales',NULL,'$2y$10$sobv4k/4yjxEEEYJ.Qc2AuI6Lej.F35DvOvUquqQhiHZITV21AC3y','SALES_MANAGER','ACTIVE',NULL,'sales2'),(12,'2026-03-26 21:04:03.975260','tranphap0407@gmail.com','Trần Anh Pháp','2026-04-11 15:27:59.715282','$2a$10$/vpMl1s3Vx4m4TTOgtYtceVEztXc7r76iouBf0BSmb5Kv3QSykliq','CUSTOMER','LOCKED','2026-04-11 18:43:19.733681','tranphap0407@gmail.com'),(15,'2026-04-11 20:02:19.593964','tranphap04asda07@gmail.com','Trần Pháp','2026-04-11 20:11:24.812392','$2a$10$kP.HrAArdlZDAKD13Mnxs.4uSPdnQd3que.EBIQJAr7.9KHhM02iK','USER','ACTIVE','2026-04-11 20:11:24.848091','user');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -826,7 +998,7 @@ DROP TABLE IF EXISTS `v_customer_analysis`;
 /*!50001 DROP VIEW IF EXISTS `v_customer_analysis`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `v_customer_analysis` AS SELECT 
+/*!50001 CREATE VIEW `v_customer_analysis` AS SELECT
  1 AS `id`,
  1 AS `code`,
  1 AS `full_name`,
@@ -849,7 +1021,7 @@ DROP TABLE IF EXISTS `v_inventory_summary`;
 /*!50001 DROP VIEW IF EXISTS `v_inventory_summary`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `v_inventory_summary` AS SELECT 
+/*!50001 CREATE VIEW `v_inventory_summary` AS SELECT
  1 AS `id`,
  1 AS `code`,
  1 AS `name`,
@@ -873,7 +1045,7 @@ DROP TABLE IF EXISTS `v_monthly_revenue`;
 /*!50001 DROP VIEW IF EXISTS `v_monthly_revenue`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `v_monthly_revenue` AS SELECT 
+/*!50001 CREATE VIEW `v_monthly_revenue` AS SELECT
  1 AS `year`,
  1 AS `month`,
  1 AS `total_bookings`,
@@ -890,7 +1062,7 @@ DROP TABLE IF EXISTS `v_salary_summary`;
 /*!50001 DROP VIEW IF EXISTS `v_salary_summary`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `v_salary_summary` AS SELECT 
+/*!50001 CREATE VIEW `v_salary_summary` AS SELECT
  1 AS `month`,
  1 AS `year`,
  1 AS `total_employees`,
@@ -905,6 +1077,24 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Temporary view structure for view `v_tour_cost`
+--
+
+DROP TABLE IF EXISTS `v_tour_cost`;
+/*!50001 DROP VIEW IF EXISTS `v_tour_cost`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `v_tour_cost` AS SELECT
+ 1 AS `tour_id`,
+ 1 AS `tour_name`,
+ 1 AS `service_count`,
+ 1 AS `total_cost`,
+ 1 AS `total_sell_price`,
+ 1 AS `listed_price_adult`,
+ 1 AS `cost_per_person`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Temporary view structure for view `v_tour_stats`
 --
 
@@ -912,7 +1102,7 @@ DROP TABLE IF EXISTS `v_tour_stats`;
 /*!50001 DROP VIEW IF EXISTS `v_tour_stats`*/;
 SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `v_tour_stats` AS SELECT 
+/*!50001 CREATE VIEW `v_tour_stats` AS SELECT
  1 AS `id`,
  1 AS `code`,
  1 AS `name`,
@@ -925,6 +1115,329 @@ SET @saved_cs_client     = @@character_set_client;
  1 AS `avg_rating`,
  1 AS `review_count`*/;
 SET character_set_client = @saved_cs_client;
+
+--
+-- Dumping events for database 'tourpro_db'
+--
+/*!50106 SET @save_time_zone= @@TIME_ZONE */ ;
+/*!50106 DROP EVENT IF EXISTS `evt_daily_backup_log` */;
+DELIMITER ;;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
+/*!50003 SET character_set_client  = utf8mb4 */ ;;
+/*!50003 SET character_set_results = utf8mb4 */ ;;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
+/*!50003 SET time_zone             = 'SYSTEM' */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`%`*/ /*!50106 EVENT `evt_daily_backup_log` ON SCHEDULE EVERY 1 DAY STARTS '2026-03-23 02:00:00' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+    INSERT INTO backup_logs (backup_time, backup_type, status, notes)
+    VALUES (NOW(), 'AUTO', 'IN_PROGRESS',
+            'Scheduled daily backup – run backup.sh manually or via cron');
+END */ ;;
+/*!50003 SET time_zone             = @saved_time_zone */ ;;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;;
+/*!50003 SET character_set_results = @saved_cs_results */ ;;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;;
+/*!50106 DROP EVENT IF EXISTS `evt_salary_reminder` */;;
+DELIMITER ;;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
+/*!50003 SET character_set_client  = utf8mb4 */ ;;
+/*!50003 SET character_set_results = utf8mb4 */ ;;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
+/*!50003 SET time_zone             = 'SYSTEM' */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`%`*/ /*!50106 EVENT `evt_salary_reminder` ON SCHEDULE EVERY 1 MONTH STARTS '2026-04-25 08:00:00' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+    INSERT INTO notifications (user_id, title, body, type, is_read)
+    SELECT id,
+           'Nhắc nhở: Tính lương tháng này',
+           CONCAT('Đã đến ngày 25, vui lòng tính lương cho tháng ',
+                  MONTH(NOW()), '/', YEAR(NOW())),
+           'SYSTEM',
+           FALSE
+    FROM users
+    WHERE role IN ('ADMIN', 'HR_MANAGER')
+      AND status = 'ACTIVE';
+END */ ;;
+/*!50003 SET time_zone             = @saved_time_zone */ ;;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;;
+/*!50003 SET character_set_results = @saved_cs_results */ ;;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;;
+/*!50106 DROP EVENT IF EXISTS `evt_update_customer_segment` */;;
+DELIMITER ;;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
+/*!50003 SET character_set_client  = utf8mb4 */ ;;
+/*!50003 SET character_set_results = utf8mb4 */ ;;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
+/*!50003 SET time_zone             = 'SYSTEM' */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`%`*/ /*!50106 EVENT `evt_update_customer_segment` ON SCHEDULE EVERY 1 DAY STARTS '2026-03-23 03:00:00' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+    CALL sp_update_customer_segment();
+END */ ;;
+/*!50003 SET time_zone             = @saved_time_zone */ ;;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;;
+/*!50003 SET character_set_results = @saved_cs_results */ ;;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;;
+DELIMITER ;
+/*!50106 SET TIME_ZONE= @save_time_zone */ ;
+
+--
+-- Dumping routines for database 'tourpro_db'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `sp_approve_leave` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_approve_leave`(
+    IN p_leave_id      BIGINT,
+    IN p_approved_by   BIGINT,
+    IN p_status        VARCHAR(10),   -- 'APPROVED' hoặc 'REJECTED'
+    IN p_reject_reason VARCHAR(500)
+)
+BEGIN
+    DECLARE v_emp_id BIGINT;
+    DECLARE v_type   VARCHAR(20);
+
+    SELECT employee_id, type
+    INTO   v_emp_id, v_type
+    FROM   leave_requests
+    WHERE  id = p_leave_id;
+
+    UPDATE leave_requests
+    SET
+        status        = p_status,
+        approved_by   = p_approved_by,
+        approved_at   = NOW(),
+        reject_reason = IF(p_status = 'REJECTED', p_reject_reason, NULL)
+    WHERE id = p_leave_id;
+
+    -- Nếu duyệt và là nghỉ phép → cập nhật trạng thái nhân viên
+    IF p_status = 'APPROVED' THEN
+        IF v_type = 'RESIGNATION' THEN
+            UPDATE employees SET status = 'RESIGNED'   WHERE id = v_emp_id;
+        ELSE
+            UPDATE employees SET status = 'ON_LEAVE'   WHERE id = v_emp_id;
+        END IF;
+    END IF;
+
+    SELECT CONCAT('Đơn nghỉ #', p_leave_id, ' đã được ', p_status) AS result;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sp_calculate_all_salaries` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_calculate_all_salaries`(
+    IN p_month TINYINT,
+    IN p_year  SMALLINT
+)
+BEGIN
+    DECLARE v_done    INT DEFAULT FALSE;
+    DECLARE v_emp_id  BIGINT;
+    DECLARE v_count   INT DEFAULT 0;
+
+    DECLARE cur CURSOR FOR
+        SELECT id FROM employees WHERE status = 'ACTIVE';
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_done = TRUE;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO v_emp_id;
+        IF v_done THEN
+            LEAVE read_loop;
+        END IF;
+
+        CALL sp_calculate_salary(v_emp_id, p_month, p_year, 0, 0);
+        SET v_count = v_count + 1;
+    END LOOP;
+
+    CLOSE cur;
+
+    SELECT CONCAT('Đã tính lương cho ', v_count,
+                  ' nhân viên – tháng ', p_month, '/', p_year) AS result;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sp_calculate_salary` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_calculate_salary`(
+    IN p_employee_id     BIGINT,
+    IN p_month           TINYINT,
+    IN p_year            SMALLINT,
+    IN p_bonus           DECIMAL(15,0),
+    IN p_extra_deduction DECIMAL(15,0)
+)
+BEGIN
+    DECLARE v_base        DECIMAL(15,0) DEFAULT 0;
+    DECLARE v_allowance   DECIMAL(15,0) DEFAULT 0;
+    DECLARE v_insurance   DECIMAL(15,0) DEFAULT 0;
+    DECLARE v_net         DECIMAL(15,0) DEFAULT 0;
+    DECLARE v_deduction   DECIMAL(15,0) DEFAULT 0;
+
+    -- Lấy thông tin lương nhân viên
+    SELECT base_salary, IFNULL(allowance, 0)
+    INTO   v_base, v_allowance
+    FROM   employees
+    WHERE  id = p_employee_id;
+
+    -- BHXH 8% + BHYT 1.5% + BHTN 1% = 10.5%
+    SET v_insurance   = ROUND(v_base * 0.105);
+    SET v_deduction   = v_insurance + IFNULL(p_extra_deduction, 0);
+    SET v_net         = v_base + v_allowance + IFNULL(p_bonus, 0) - v_deduction;
+
+    INSERT INTO salary_records
+        (employee_id, month, year, base_salary, allowance, bonus, deduction, net_pay, status)
+    VALUES
+        (p_employee_id, p_month, p_year,
+         v_base, v_allowance, IFNULL(p_bonus, 0), v_deduction, v_net, 'DRAFT')
+    ON DUPLICATE KEY UPDATE
+        base_salary = v_base,
+        allowance   = v_allowance,
+        bonus       = IFNULL(p_bonus, 0),
+        deduction   = v_deduction,
+        net_pay     = v_net,
+        status      = 'DRAFT';
+
+    SELECT CONCAT('Đã tính lương cho nhân viên ID=', p_employee_id,
+                  ' tháng ', p_month, '/', p_year,
+                  ' – Thực lĩnh: ', FORMAT(v_net, 0)) AS result;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sp_monthly_report` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_monthly_report`(
+    IN p_month TINYINT,
+    IN p_year  SMALLINT
+)
+BEGIN
+    -- Tổng doanh thu
+    SELECT
+        p_month                                         AS report_month,
+        p_year                                          AS report_year,
+        COUNT(id)                                       AS total_bookings,
+        IFNULL(SUM(total_price), 0)                    AS total_revenue,
+        IFNULL(SUM(discount),    0)                    AS total_discount,
+        IFNULL(SUM(total_price) - SUM(discount), 0)   AS net_revenue
+    FROM bookings
+    WHERE MONTH(created_at) = p_month
+      AND YEAR(created_at)  = p_year
+      AND status IN ('PAID', 'COMPLETED');
+
+    -- Top 5 tour
+    SELECT
+        t.name                 AS tour_name,
+        COUNT(b.id)            AS bookings,
+        SUM(b.total_price)     AS revenue
+    FROM bookings b
+    JOIN tour_schedules ts ON b.tour_schedule_id = ts.id
+    JOIN tours t           ON ts.tour_id         = t.id
+    WHERE MONTH(b.created_at) = p_month
+      AND YEAR(b.created_at)  = p_year
+      AND b.status IN ('PAID', 'COMPLETED')
+    GROUP BY t.id, t.name
+    ORDER BY revenue DESC
+    LIMIT 5;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `sp_update_customer_segment` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_update_customer_segment`()
+BEGIN
+    DECLARE v_updated INT DEFAULT 0;
+
+    UPDATE customers c
+    LEFT JOIN (
+        SELECT
+            customer_id,
+            COUNT(*)        AS booking_count,
+            SUM(total_price) AS total_spent
+        FROM bookings
+        WHERE status IN ('PAID', 'COMPLETED')
+        GROUP BY customer_id
+    ) stats ON c.id = stats.customer_id
+    SET c.segment = CASE
+        WHEN IFNULL(stats.booking_count, 0) >= 8
+          OR IFNULL(stats.total_spent, 0) >= 50000000 THEN 'VIP'
+        WHEN IFNULL(stats.booking_count, 0) >= 4
+          OR IFNULL(stats.total_spent, 0) >= 20000000 THEN 'LOYAL'
+        WHEN IFNULL(stats.booking_count, 0) >= 2     THEN 'REGULAR'
+        ELSE 'NEW'
+    END;
+
+    SET v_updated = ROW_COUNT();
+    SELECT CONCAT('Đã cập nhật phân khúc cho ', v_updated, ' khách hàng') AS result;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Final view structure for view `v_customer_analysis`
@@ -999,6 +1512,24 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
+-- Final view structure for view `v_tour_cost`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_tour_cost`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_tour_cost` AS select `t`.`id` AS `tour_id`,`t`.`name` AS `tour_name`,count(`ts`.`id`) AS `service_count`,sum((`p`.`buy_price` * `ts`.`quantity`)) AS `total_cost`,sum((`p`.`sell_price` * `ts`.`quantity`)) AS `total_sell_price`,`t`.`price_adult` AS `listed_price_adult`,round((sum((`p`.`buy_price` * `ts`.`quantity`)) / nullif(`t`.`capacity`,0)),0) AS `cost_per_person` from ((`tours` `t` left join `tour_services` `ts` on((`t`.`id` = `ts`.`tour_id`))) left join `products` `p` on((`ts`.`product_id` = `p`.`id`))) group by `t`.`id`,`t`.`name`,`t`.`price_adult`,`t`.`capacity` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
 -- Final view structure for view `v_tour_stats`
 --
 
@@ -1025,4 +1556,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-27 14:44:22
+-- Dump completed on 2026-04-11 21:25:22

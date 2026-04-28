@@ -143,19 +143,10 @@ public class TourService {
             double marginPercent
     ) {
 
-        Tour tour = tourRepo.findById(tourId)
+        // Fetch tour với services để tính giá
+        Tour tour = tourRepo.findByIdWithServices(tourId)
                 .orElseThrow(() ->
                         new RuntimeException("Tour not found"));
-
-        // ================= TỔNG CHI PHÍ =================
-
-        BigDecimal totalCost =
-                Optional.ofNullable(
-                        tourSvcRepo.sumCostByTourId(tourId)
-                ).orElse(BigDecimal.ZERO);
-
-        // lưu estimated cost
-//        tour.setEstimatedCost(totalCost);
 
         // ================= SỨC CHỨA =================
 
@@ -164,6 +155,10 @@ public class TourService {
                         && tour.getCapacity() > 0
                         ? tour.getCapacity()
                         : 1;
+
+        // ================= TÍNH TỔNG CHI PHÍ THEO LOẠI DỊCH VỤ =================
+
+        BigDecimal totalCost = calculateTotalCostByType(tour);
 
         // ================= GIÁ COST / NGƯỜI =================
 
@@ -218,6 +213,80 @@ public class TourService {
         Tour saved = tourRepo.save(tour);
 
         return toResponse(saved);
+    }
+
+    /**
+     * Tính tổng chi phí dịch vụ dựa trên loại dịch vụ
+     * - FLIGHT: tính chuyến đi + chuyến về (2 lần)
+     * - HOTEL: tính theo số đêm (nights)
+     * - FOOD: 3 bữa/ngày × số ngày
+     * - VEHICLE: tính theo ngày
+     * - ACTIVITY: theo vé (như cũ)
+     */
+    private BigDecimal calculateTotalCostByType(Tour tour) {
+        BigDecimal total = BigDecimal.ZERO;
+
+        int days = tour.getDays() != null ? tour.getDays() : 1;
+        int nights = tour.getNights() != null ? tour.getNights() : (days - 1);
+
+        if (tour.getServices() == null) {
+            return total;
+        }
+
+        for (TourServiceItem ts : tour.getServices()) {
+            Product p = ts.getProduct();
+            BigDecimal unitPrice = p.getBuyPrice();
+            int qty = ts.getQuantity() != null ? ts.getQuantity() : 1;
+
+            BigDecimal itemCost = BigDecimal.ZERO;
+
+            if (p.getType() == null) {
+                // Không có type thì tính như cũ
+                itemCost = unitPrice.multiply(BigDecimal.valueOf(qty));
+            } else {
+                switch (p.getType()) {
+                    case FLIGHT:
+                        // Di chuyển: tính chuyến đi + chuyến về = 2 lần
+                        // quantity ở đây là số lượng vé một chiều
+                        itemCost = unitPrice.multiply(BigDecimal.valueOf(qty * 2));
+                        break;
+
+                    case HOTEL:
+                        // Khách sạn: tính theo số đêm
+                        // quantity là số phòng, nhân với số đêm
+                        itemCost = unitPrice.multiply(
+                                BigDecimal.valueOf(qty * nights)
+                        );
+                        break;
+
+                    case FOOD:
+                        // Suất ăn: 3 bữa/ngày × số ngày × số lượng
+                        // quantity là số suất ăn mỗi bữa
+                        itemCost = unitPrice.multiply(
+                                BigDecimal.valueOf(qty * 3 * days)
+                        );
+                        break;
+
+                    case VEHICLE:
+                        // Xe: tính theo ngày
+                        itemCost = unitPrice.multiply(
+                                BigDecimal.valueOf(qty * days)
+                        );
+                        break;
+
+                    case ACTIVITY:
+                    case OTHER:
+                    default:
+                        // Vui chơi: theo vé như cũ
+                        itemCost = unitPrice.multiply(BigDecimal.valueOf(qty));
+                        break;
+                }
+            }
+
+            total = total.add(itemCost);
+        }
+
+        return total;
     }
 
     // ─────────────────────────────────────────────────────────

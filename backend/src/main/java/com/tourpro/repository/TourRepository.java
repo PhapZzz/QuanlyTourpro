@@ -4,6 +4,8 @@ import com.tourpro.entity.Tour;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface TourRepository extends JpaRepository<Tour, Long> {
@@ -12,4 +14,8 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
     Page<Tour> findByType(Tour.TourType type, Pageable pageable);
     Page<Tour> findByDestinationContainingIgnoreCase(String destination, Pageable pageable);
     Page<Tour> findByStatus(Tour.TourStatus status, Pageable pageable);
+
+    // Fetch tour với services để tính giá
+    @Query("SELECT t FROM Tour t LEFT JOIN FETCH t.services ts LEFT JOIN FETCH ts.product WHERE t.id = :id")
+    Optional<Tour> findByIdWithServices(@Param("id") Long id);
 }

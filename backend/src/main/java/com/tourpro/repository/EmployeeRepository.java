@@ -12,4 +12,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Page<Employee> findByDepartmentId(Long deptId, Pageable pageable);
     Page<Employee> findByFullNameContainingIgnoreCase(String name, Pageable pageable);
     List<Employee> findByStatus(Employee.EmployeeStatus status);
+    Optional<Employee> findByUser_Id(Long userId);
+
 }

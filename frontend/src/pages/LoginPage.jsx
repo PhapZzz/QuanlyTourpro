@@ -25,8 +25,8 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const res = await authAPI.login(values)
-      const { token, fullName, username, role } = res.data.data
-      login(token, { fullName, username, role })
+      const { token, id, fullName, username, role } = res.data.data
+      login(token, { id, fullName, username, role })
       message.success(`Chào mừng ${fullName}!`)
       navigate(ROLE_REDIRECTS[role] ?? '/login')
     } catch (err) {

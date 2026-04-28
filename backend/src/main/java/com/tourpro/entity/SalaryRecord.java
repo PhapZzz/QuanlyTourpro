@@ -2,18 +2,20 @@ package com.tourpro.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "salary_records",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"employee_id","month","year"}))
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "salary_records")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SalaryRecord {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,26 +28,61 @@ public class SalaryRecord {
     @Column(nullable = false)
     private Integer year;
 
+    @Column(name = "base_salary")
     private BigDecimal baseSalary;
+
+    @Column(name = "allowance")
     private BigDecimal allowance;
+
+    @Column(name = "bonus")
     private BigDecimal bonus;
+
+    // ── Từng khoản bảo hiểm ──────────────────────────────
+    @Column(name = "social_insurance")
+    private BigDecimal socialInsurance;          // BHXH 8%
+
+    @Column(name = "health_insurance")
+    private BigDecimal healthInsurance;          // BHYT 1.5%
+
+    @Column(name = "unemployment_insurance")
+    private BigDecimal unemploymentInsurance;    // BHTN 1%
+
+    @Column(name = "income_tax")
+    private BigDecimal incomeTax;               // Thuế TNCN
+    // ─────────────────────────────────────────────────────
+
+    /** Tổng khấu trừ = BHXH + BHYT + BHTN + thuế + extraDeduction */
+    @Column(name = "deduction")
     private BigDecimal deduction;
+
+    @Column(name = "net_pay")
     private BigDecimal netPay;
+
+    @Column(name = "working_days")
     private Integer workingDays;
+
+    @Column(name = "actual_days")
     private Integer actualDays;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SalaryStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "approved_by")
-    private User approvedBy;
+    @Column(name = "approved_by")
+    private String approvedBy;
 
+    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @CreatedDate
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public enum SalaryStatus { DRAFT, APPROVED, PAID }
+    @PrePersist
+    void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public enum SalaryStatus {
+        DRAFT, APPROVED, PAID
+    }
 }

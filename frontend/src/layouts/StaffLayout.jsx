@@ -82,8 +82,24 @@ export default function StaffLayout() {
           </Badge>
           <Dropdown
             menu={{
-              items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', danger: true }],
-              onClick: ({ key }) => { if (key === 'logout') { logout(); navigate('/login') } },
+              items: [
+                {
+                  key: 'profile',
+                  icon: <UserOutlined />,
+                  label: 'Thông tin cá nhân',
+                },
+                { type: 'divider' },
+                {
+                  key: 'logout',
+                  icon: <LogoutOutlined />,
+                  label: 'Đăng xuất',
+                  danger: true,
+                },
+              ],
+              onClick: ({ key }) => {
+                if (key === 'logout') { logout(); navigate('/login') }
+                if (key === 'profile') navigate('/staff/profile')
+              },
             }}
             placement="bottomRight"
           >

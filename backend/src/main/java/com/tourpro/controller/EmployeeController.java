@@ -1,6 +1,7 @@
 package com.tourpro.controller;
 
 import com.tourpro.dto.*;
+import com.tourpro.entity.PositionHistory;
 import com.tourpro.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,10 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/hr/employees")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+//@PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -28,6 +31,11 @@ public class EmployeeController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<EmployeeDTO.Response>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(employeeService.getById(id)));
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<ApiResponse<EmployeeDTO.Response>> getByUserId(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(employeeService.getByUserId(id)));
     }
 
     @PostMapping
@@ -52,4 +60,12 @@ public class EmployeeController {
         employeeService.delete(id);
         return ResponseEntity.ok(ApiResponse.ok("Đã sa thải nhân viên", null));
     }
+
+    @GetMapping("/{id}/position-history")
+    public ResponseEntity<?> getPositionHistory(@PathVariable Long id) {
+        List<PositionHistoryDTO.Response> history = employeeService.getPositionHistory(id);
+        return ResponseEntity.ok(ApiResponse.ok(history));
+    }
+
+
 }

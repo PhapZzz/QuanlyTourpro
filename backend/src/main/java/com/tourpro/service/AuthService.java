@@ -37,6 +37,7 @@ public class AuthService {
         UserDetails ud = userDetailsService.loadUserByUsername(req.getUsername());
         return LoginResponse.builder()
                 .token(jwtUtil.generateToken(ud))
+                .id(user.getId())
                 .username(user.getUsername())
                 .fullName(user.getFullName())
                 .role(user.getRole().name())

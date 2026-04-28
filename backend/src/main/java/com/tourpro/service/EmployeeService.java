@@ -2,12 +2,15 @@ package com.tourpro.service;
 
 import com.tourpro.dto.EmployeeDTO;
 import com.tourpro.dto.PageResponse;
+import com.tourpro.dto.PositionHistoryDTO;
 import com.tourpro.entity.*;
 import com.tourpro.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,11 @@ public class EmployeeService {
 
     public EmployeeDTO.Response getById(Long id) {
         return toResponse(empRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found: " + id)));
+    }
+
+    public EmployeeDTO.Response getByUserId(Long id) {
+        return toResponse(empRepo.findByUser_Id(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found: " + id)));
     }
 
@@ -64,16 +72,31 @@ public class EmployeeService {
     public EmployeeDTO.Response update(Long id, EmployeeDTO.UpdateRequest req) {
         Employee emp = empRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found: " + id));
-        if (req.getFullName()    != null) emp.setFullName(req.getFullName());
-        if (req.getPhone()       != null) emp.setPhone(req.getPhone());
-        if (req.getEmail()       != null) emp.setEmail(req.getEmail());
-        if (req.getBaseSalary()  != null) emp.setBaseSalary(req.getBaseSalary());
-        if (req.getAllowance()   != null) emp.setAllowance(req.getAllowance());
-        if (req.getStatus()      != null) emp.setStatus(req.getStatus());
-        if (req.getDepartmentId() != null)
-            emp.setDepartment(deptRepo.findById(req.getDepartmentId()).orElseThrow());
-        if (req.getPositionId()  != null)
-            emp.setPosition(posRepo.findById(req.getPositionId()).orElseThrow());
+
+        if (req.getCode() != null) emp.setCode(req.getCode());
+        if (req.getFullName() != null) emp.setFullName(req.getFullName());
+        if (req.getPhone() != null) emp.setPhone(req.getPhone());
+        if (req.getEmail() != null) emp.setEmail(req.getEmail());
+        if (req.getBaseSalary() != null) emp.setBaseSalary(req.getBaseSalary());
+        if (req.getAllowance() != null) emp.setAllowance(req.getAllowance());
+        if (req.getStatus() != null) emp.setStatus(req.getStatus());
+
+        // ✅ FIX DEPARTMENT
+        if (req.getDepartmentId() != null) {
+            emp.setDepartment(
+                    deptRepo.findById(req.getDepartmentId())
+                            .orElseThrow(() -> new RuntimeException("Department not found"))
+            );
+        }
+
+        // ✅ FIX POSITION
+        if (req.getPositionId() != null) {
+            emp.setPosition(
+                    posRepo.findById(req.getPositionId())
+                            .orElseThrow(() -> new RuntimeException("Position not found"))
+            );
+        }
+
         return toResponse(empRepo.save(emp));
     }
 
@@ -101,12 +124,25 @@ public class EmployeeService {
 
     private EmployeeDTO.Response toResponse(Employee e) {
         return EmployeeDTO.Response.builder()
-                .id(e.getId()).code(e.getCode()).fullName(e.getFullName())
+                .id(e.getId())
+                .code(e.getCode())
+                .fullName(e.getFullName())
                 .gender(e.getGender() != null ? e.getGender().name() : null)
-                .dob(e.getDob()).cccd(e.getCccd()).phone(e.getPhone()).email(e.getEmail())
+                .dob(e.getDob())
+                .cccd(e.getCccd())
+                .phone(e.getPhone())
+                .email(e.getEmail())
+
+                // ✅ IMPORTANT FIX
+                .departmentId(e.getDepartment() != null ? e.getDepartment().getId() : null)
                 .departmentName(e.getDepartment() != null ? e.getDepartment().getName() : null)
-                .positionTitle(e.getPosition()   != null ? e.getPosition().getTitle()   : null)
-                .hireDate(e.getHireDate()).baseSalary(e.getBaseSalary()).allowance(e.getAllowance())
+
+                .positionId(e.getPosition() != null ? e.getPosition().getId() : null)
+                .positionTitle(e.getPosition() != null ? e.getPosition().getTitle() : null)
+
+                .hireDate(e.getHireDate())
+                .baseSalary(e.getBaseSalary())
+                .allowance(e.getAllowance())
                 .status(e.getStatus() != null ? e.getStatus().name() : null)
                 .createdAt(e.getCreatedAt())
                 .build();
@@ -117,6 +153,24 @@ public class EmployeeService {
                 .content(pg.getContent().stream().map(this::toResponse).toList())
                 .page(pg.getNumber()).size(pg.getSize())
                 .totalElements(pg.getTotalElements()).totalPages(pg.getTotalPages())
+                .build();
+    }
+    public List<PositionHistoryDTO.Response> getPositionHistory(Long employeeId) {
+        empRepo.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found: " + employeeId));
+        return histRepo.findByEmployeeIdOrderByEffectiveDateDesc(employeeId)
+                .stream().map(this::toHistoryResponse).toList();
+    }
+
+    private PositionHistoryDTO.Response toHistoryResponse(PositionHistory h) {
+        return PositionHistoryDTO.Response.builder()
+                .id(h.getId())
+                .positionId(h.getPosition().getId())
+                .positionTitle(h.getPosition().getTitle())
+                .effectiveDate(h.getEffectiveDate())
+                .salary(h.getSalary())
+                .note(h.getNote())
+                .createdAt(h.getCreatedAt())
                 .build();
     }
 }

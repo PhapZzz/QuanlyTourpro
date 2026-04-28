@@ -11,6 +11,7 @@ import RegisterPage from './pages/RegisterPage'
 import AdminLayout    from './layouts/AdminLayout'
 import StaffLayout    from './layouts/StaffLayout'
 import CustomerLayout from './layouts/CustomerLayout'
+import ProfilePage from './layouts/ProfilePage'
 
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -91,6 +92,7 @@ export default function App() {
             <Route path="sales/bookings"      element={<SalesBookings />} />
             <Route path="sales/export"        element={<SalesExport />} />
             <Route path="sales/profit"        element={<SalesProfit />} />
+            <Route path="/staff/profile" element={<ProfilePage />} />
           </Route>
 
           {/* Customer portal */}

@@ -28,6 +28,7 @@ E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\controller\Book
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\User.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\Position.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\CustomerDTO.java
+E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\PositionHistoryDTO.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\config\SecurityConfig.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\UserRepository.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\config\JpaAuditingConfig.java

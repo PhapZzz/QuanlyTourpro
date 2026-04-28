@@ -51,6 +51,7 @@ com\tourpro\dto\TourDTO$ServiceItem$ServiceItemBuilder.class
 com\tourpro\entity\ExportDetail$ExportDetailBuilder.class
 com\tourpro\service\LeaveService.class
 com\tourpro\entity\Product.class
+com\tourpro\dto\PositionHistoryDTO$Response.class
 com\tourpro\dto\EmployeeDTO$UpdateRequest.class
 com\tourpro\entity\Product$ProductBuilder.class
 com\tourpro\repository\DepartmentRepository.class
@@ -91,6 +92,7 @@ com\tourpro\dto\BookingDTO$Response$ResponseBuilder.class
 com\tourpro\controller\ProductController.class
 com\tourpro\dto\TourDTO$ScheduleResponse$ScheduleResponseBuilder.class
 com\tourpro\entity\Booking$BookingStatus.class
+com\tourpro\dto\PositionHistoryDTO$Response$ResponseBuilder.class
 com\tourpro\dto\SalaryDTO$CalculateRequest.class
 com\tourpro\entity\Customer$CustomerBuilder.class
 com\tourpro\dto\ProductDTO$Response$ResponseBuilder.class
@@ -172,8 +174,10 @@ com\tourpro\service\EmployeeService.class
 com\tourpro\dto\SupplierDTO.class
 com\tourpro\dto\EmployeeDTO.class
 com\tourpro\entity\ExportVoucher$ExportVoucherBuilder.class
+com\tourpro\dto\PositionHistoryDTO.class
 com\tourpro\repository\EmployeeRepository.class
 com\tourpro\dto\BookingDTO.class
+com\tourpro\dto\SalaryDTO$UpdateBonusRequest.class
 com\tourpro\dto\TourDTO$CreateRequest.class
 com\tourpro\entity\LeaveRequest$LeaveStatus.class
 com\tourpro\dto\ReportDTO$DashboardStats.class

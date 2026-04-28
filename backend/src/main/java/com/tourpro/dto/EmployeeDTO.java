@@ -19,7 +19,9 @@ public class EmployeeDTO {
         private String cccd;
         private String phone;
         private String email;
+        private Long departmentId;
         private String departmentName;
+        private Long positionId;
         private String positionTitle;
         private LocalDate hireDate;
         private BigDecimal baseSalary;
@@ -42,10 +44,12 @@ public class EmployeeDTO {
         @NotNull                    private BigDecimal baseSalary;
         private BigDecimal          allowance;
         private Long                userId;
+        private String              code;
     }
 
     @Data
     public static class UpdateRequest {
+        private String code;
         private String fullName;
         private Employee.Gender gender;
         private LocalDate dob;

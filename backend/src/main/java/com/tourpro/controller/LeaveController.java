@@ -18,7 +18,7 @@ public class LeaveController {
     private final LeaveService leaveService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
+//    @PreAuthorize("hasAnyRole('ADMIN','HR_MANAGER')")
     public ResponseEntity<ApiResponse<PageResponse<LeaveDTO.Response>>> getAll(
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "20") int size) {

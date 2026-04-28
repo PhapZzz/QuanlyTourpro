@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface ImportVoucherRepository extends JpaRepository<ImportVoucher, Long> {
     Page<ImportVoucher> findBySupplierId(Long supplierId, Pageable pageable);
@@ -16,4 +17,9 @@ public interface ImportVoucherRepository extends JpaRepository<ImportVoucher, Lo
 
     @Query("SELECT SUM(v.total) FROM ImportVoucher v WHERE MONTH(v.date)=:m AND YEAR(v.date)=:y AND v.status='APPROVED'")
     BigDecimal sumTotalByMonthYear(@Param("m") int month, @Param("y") int year);
+    Optional<ImportVoucher> findTopByOrderByIdDesc();
+
+    boolean existsByCode(String code);
+    @Query("SELECT MAX(i.id) FROM ImportVoucher i")
+    Long findMaxId();
 }

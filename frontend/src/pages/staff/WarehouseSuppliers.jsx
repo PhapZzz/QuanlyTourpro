@@ -34,9 +34,6 @@ const TYPE_LABEL = {
   TRANSPORT: 'Vận chuyển',
   FOOD: 'Ăn uống',
   ENTERTAINMENT: 'Vui chơi',
-  FLIGHT: 'Hàng không',
-  GUIDE: 'Hướng dẫn viên',
-  INSURANCE: 'Bảo hiểm',
   OTHER: 'Khác',
 }
 
@@ -45,9 +42,6 @@ const TYPE_COLOR = {
   TRANSPORT: 'orange',
   FOOD: 'green',
   ENTERTAINMENT: 'purple',
-  FLIGHT: 'geekblue',
-  GUIDE: 'cyan',
-  INSURANCE: 'magenta',
   OTHER: 'default',
 }
 
@@ -74,16 +68,46 @@ export default function TourSuppliersManagement() {
 
   const [form] = Form.useForm()
 
+  const normalizeData = (arr = []) => {
+    return arr.map((s) => ({
+      id: s.id,
+      code: s.code,
+      name: s.name,
+      type: s.type,
+      taxCode: s.taxCode,
+      phone: s.phone,
+      email: s.email,
+      address: s.address,
+      contactPerson: s.contactPerson,
+      status: s.status,
+      note: s.note,
+    }))
+  }
+
   const load = async () => {
     setLoading(true)
+
     try {
       const r = await supplierAPI.getAll({
         search,
         type: typeFilter,
         status: statusFilter,
       })
-      setData(r.data.data ?? [])
+
+      let list = []
+
+      // backend có thể trả data hoặc data.content
+      if (Array.isArray(r.data?.data)) {
+        list = r.data.data
+      } else if (Array.isArray(r.data?.data?.content)) {
+        list = r.data.data.content
+      } else if (Array.isArray(r.data?.content)) {
+        list = r.data.content
+      }
+
+      setData(normalizeData(list))
     } catch (error) {
+      console.error(error)
       message.error('Không tải được danh sách đối tác')
     } finally {
       setLoading(false)
@@ -96,51 +120,108 @@ export default function TourSuppliersManagement() {
 
   const openCreate = () => {
     setEditing(null)
+
     form.resetFields()
+
     form.setFieldsValue({
       status: 'ACTIVE',
       type: 'OTHER',
     })
+
     setOpen(true)
   }
 
   const openEdit = (row) => {
     setEditing(row)
-    form.setFieldsValue(row)
+
+    form.setFieldsValue({
+      code: row.code,
+      name: row.name,
+      type: row.type,
+      taxCode: row.taxCode,
+      phone: row.phone,
+      email: row.email,
+      address: row.address,
+      contactPerson: row.contactPerson,
+      status: row.status,
+      note: row.note,
+    })
+
     setOpen(true)
   }
 
   const onFinish = async (values) => {
     try {
+      const payload = {
+        code: values.code?.trim() || null,
+        name: values.name?.trim(),
+        type: values.type,
+        taxCode: values.taxCode?.trim() || null,
+        phone: values.phone?.trim() || null,
+        email: values.email?.trim() || null,
+        address: values.address?.trim() || null,
+        contactPerson: values.contactPerson?.trim() || null,
+        status: values.status,
+        note: values.note?.trim() || null,
+      }
+
       if (editing) {
-        await supplierAPI.update(editing.id, values)
+        await supplierAPI.update(editing.id, payload)
         message.success('Cập nhật đối tác thành công')
       } else {
-        await supplierAPI.create(values)
+        await supplierAPI.create(payload)
         message.success('Thêm đối tác thành công')
       }
+
       setOpen(false)
+      form.resetFields()
+
       load()
     } catch (e) {
-      message.error(e.response?.data?.message ?? 'Lưu dữ liệu thất bại')
+      console.error(e)
+
+      message.error(
+        e.response?.data?.message ||
+          e.response?.data?.error ||
+          'Lưu dữ liệu thất bại'
+      )
     }
   }
 
   const handleDeactivate = async (row) => {
     try {
-      await supplierAPI.update(row.id, { ...row, status: 'INACTIVE' })
+      await supplierAPI.update(row.id, {
+        code: row.code,
+        name: row.name,
+        type: row.type,
+        taxCode: row.taxCode,
+        phone: row.phone,
+        email: row.email,
+        address: row.address,
+        contactPerson: row.contactPerson,
+        status: 'INACTIVE',
+        note: row.note,
+      })
+
       message.success('Đã chuyển trạng thái ngừng hợp tác')
+
       load()
     } catch (error) {
-      message.error(error.response?.data?.message ?? 'Thao tác thất bại')
+      console.error(error)
+
+      message.error(
+        error.response?.data?.message || 'Thao tác thất bại'
+      )
     }
   }
 
   const totalSuppliers = useMemo(() => data.length, [data])
+
   const activeSuppliers = useMemo(
     () => data.filter((s) => s.status === 'ACTIVE').length,
     [data]
   )
+
   const inactiveSuppliers = useMemo(
     () => data.filter((s) => s.status === 'INACTIVE').length,
     [data]
@@ -150,13 +231,14 @@ export default function TourSuppliersManagement() {
     {
       title: 'Mã',
       dataIndex: 'code',
-      width: 90,
+      width: 100,
       render: (v) => (
         <span style={{ color: '#888', fontSize: 12, fontWeight: 500 }}>
           {v || '--'}
         </span>
       ),
     },
+
     {
       title: 'Tên đối tác',
       dataIndex: 'name',
@@ -168,27 +250,25 @@ export default function TourSuppliersManagement() {
           >
             {v}
           </strong>
+
           <div style={{ color: '#999', fontSize: 12 }}>
             {r.address || 'Chưa cập nhật địa chỉ'}
           </div>
         </div>
       ),
     },
+
     {
       title: 'Loại dịch vụ',
       dataIndex: 'type',
-      width: 150,
+      width: 160,
       render: (v) => (
         <Tag color={TYPE_COLOR[v] || 'default'}>
-          {TYPE_LABEL[v] || v || 'Khác'}
+          {TYPE_LABEL[v] || v}
         </Tag>
       ),
-      filters: Object.entries(TYPE_LABEL).map(([k, v]) => ({
-        text: v,
-        value: k,
-      })),
-      onFilter: (val, r) => r.type === val,
     },
+
     {
       title: 'Liên hệ',
       key: 'contact',
@@ -198,6 +278,7 @@ export default function TourSuppliersManagement() {
             <PhoneOutlined style={{ marginRight: 6, color: '#888' }} />
             {r.phone || '---'}
           </div>
+
           <div>
             <MailOutlined style={{ marginRight: 6, color: '#888' }} />
             {r.email || '---'}
@@ -205,6 +286,7 @@ export default function TourSuppliersManagement() {
         </div>
       ),
     },
+
     {
       title: 'Người liên hệ',
       dataIndex: 'contactPerson',
@@ -215,26 +297,24 @@ export default function TourSuppliersManagement() {
         </span>
       ),
     },
+
     {
       title: 'Mã số thuế',
       dataIndex: 'taxCode',
       render: (v) => v || '---',
     },
+
     {
       title: 'Trạng thái',
       dataIndex: 'status',
       width: 140,
       render: (v) => (
         <Tag color={STATUS_COLOR[v] || 'default'}>
-          {STATUS_LABEL[v] || v || 'Không xác định'}
+          {STATUS_LABEL[v] || v}
         </Tag>
       ),
-      filters: [
-        { text: 'Đang hợp tác', value: 'ACTIVE' },
-        { text: 'Ngừng hợp tác', value: 'INACTIVE' },
-      ],
-      onFilter: (val, r) => r.status === val,
     },
+
     {
       title: '',
       key: 'act',
@@ -257,7 +337,11 @@ export default function TourSuppliersManagement() {
               onConfirm={() => handleDeactivate(row)}
             >
               <Tooltip title="Ngừng hợp tác">
-                <Button size="small" danger icon={<DeleteOutlined />} />
+                <Button
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                />
               </Tooltip>
             </Popconfirm>
           )}
@@ -294,7 +378,9 @@ export default function TourSuppliersManagement() {
             <Statistic
               title="Ngừng hợp tác"
               value={inactiveSuppliers}
-              valueStyle={{ color: inactiveSuppliers > 0 ? '#fa8c16' : '#999' }}
+              valueStyle={{
+                color: inactiveSuppliers > 0 ? '#fa8c16' : '#999',
+              }}
             />
           </Card>
         </Col>
@@ -351,7 +437,10 @@ export default function TourSuppliersManagement() {
           type="primary"
           icon={<PlusOutlined />}
           onClick={openCreate}
-          style={{ background: '#1D9E75', borderColor: '#1D9E75' }}
+          style={{
+            background: '#1D9E75',
+            borderColor: '#1D9E75',
+          }}
         >
           Thêm đối tác
         </Button>
@@ -372,7 +461,11 @@ export default function TourSuppliersManagement() {
       />
 
       <Modal
-        title={editing ? 'Chỉnh sửa đối tác dịch vụ' : 'Thêm nhà cung cấp dịch vụ'}
+        title={
+          editing
+            ? 'Chỉnh sửa đối tác dịch vụ'
+            : 'Thêm nhà cung cấp dịch vụ'
+        }
         open={open}
         width={700}
         onCancel={() => setOpen(false)}
@@ -383,13 +476,45 @@ export default function TourSuppliersManagement() {
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Row gutter={12}>
+            <Col xs={24} md={12}>
+              <Form.Item name="code" label="Mã nhà cung cấp">
+                <Input placeholder="VD: NCC001" />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="status"
+                label="Trạng thái"
+                initialValue="ACTIVE"
+              >
+                <Select
+                  options={[
+                    {
+                      value: 'ACTIVE',
+                      label: 'Đang hợp tác',
+                    },
+                    {
+                      value: 'INACTIVE',
+                      label: 'Ngừng hợp tác',
+                    },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+
             <Col span={24}>
               <Form.Item
                 name="name"
                 label="Tên nhà cung cấp / đối tác"
-                rules={[{ required: true, message: 'Vui lòng nhập tên đối tác' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng nhập tên đối tác',
+                  },
+                ]}
               >
-                <Input placeholder="Ví dụ: Khách sạn Mường Thanh / Nhà xe Thành Bưởi..." />
+                <Input placeholder="Ví dụ: Khách sạn Mường Thanh..." />
               </Form.Item>
             </Col>
 
@@ -397,26 +522,28 @@ export default function TourSuppliersManagement() {
               <Form.Item
                 name="type"
                 label="Loại dịch vụ"
-                rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Vui lòng chọn loại dịch vụ',
+                  },
+                ]}
               >
                 <Select
                   placeholder="Chọn loại dịch vụ"
-                  options={Object.entries(TYPE_LABEL).map(([k, v]) => ({
-                    value: k,
-                    label: v,
-                  }))}
+                  options={Object.entries(TYPE_LABEL).map(
+                    ([k, v]) => ({
+                      value: k,
+                      label: v,
+                    })
+                  )}
                 />
               </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item name="status" label="Trạng thái" initialValue="ACTIVE">
-                <Select
-                  options={[
-                    { value: 'ACTIVE', label: 'Đang hợp tác' },
-                    { value: 'INACTIVE', label: 'Ngừng hợp tác' },
-                  ]}
-                />
+              <Form.Item name="taxCode" label="Mã số thuế">
+                <Input placeholder="Nhập mã số thuế" />
               </Form.Item>
             </Col>
 
@@ -433,13 +560,10 @@ export default function TourSuppliersManagement() {
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item name="taxCode" label="Mã số thuế">
-                <Input placeholder="Nhập mã số thuế" />
-              </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12}>
-              <Form.Item name="contactPerson" label="Người liên hệ">
+              <Form.Item
+                name="contactPerson"
+                label="Người liên hệ"
+              >
                 <Input placeholder="Nhập tên người liên hệ" />
               </Form.Item>
             </Col>
@@ -447,8 +571,21 @@ export default function TourSuppliersManagement() {
             <Col span={24}>
               <Form.Item name="address" label="Địa chỉ">
                 <Input
-                  prefix={<EnvironmentOutlined style={{ color: '#999' }} />}
+                  prefix={
+                    <EnvironmentOutlined
+                      style={{ color: '#999' }}
+                    />
+                  }
                   placeholder="Nhập địa chỉ nhà cung cấp"
+                />
+              </Form.Item>
+            </Col>
+
+            <Col span={24}>
+              <Form.Item name="note" label="Ghi chú">
+                <Input.TextArea
+                  rows={3}
+                  placeholder="Ghi chú thêm..."
                 />
               </Form.Item>
             </Col>

@@ -6,6 +6,7 @@ import {
   InboxOutlined, ShopOutlined, ImportOutlined,
   BookOutlined, ExportOutlined, RiseOutlined,
   LogoutOutlined, BellOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons'
 import { useAuthStore } from '../stores/authStore'
 
@@ -31,6 +32,8 @@ const menuItems = [
   {
     type: 'group', label: 'Kinh doanh',
     children: [
+        { key: '/staff/sales/tours',     icon: <AppstoreOutlined />, label: 'Danh sách tour' },
+        { key: '/staff/sales/customers', icon: <UserOutlined />,     label: 'Khách hàng' },
       { key: '/staff/sales/bookings', icon: <BookOutlined />,   label: 'Đặt tour' },
       { key: '/staff/sales/export',   icon: <ExportOutlined />, label: 'Phiếu xuất' },
       { key: '/staff/sales/profit',   icon: <RiseOutlined />,   label: 'Doanh thu' },

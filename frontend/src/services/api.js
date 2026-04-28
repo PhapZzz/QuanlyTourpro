@@ -88,6 +88,20 @@ export const productAPI = {
   update:   (id, data)  => api.put(`/warehouse/products/${id}`, data),
   delete:   (id)        => api.delete(`/warehouse/products/${id}`),
   lowStock: ()          => api.get('/warehouse/products/low-stock'),
+    getStatistics: (m, y)     =>
+      api.get(`/warehouse/products/statistics?month=${m}&year=${y}`),
+}
+
+export const exportVoucherAPI = {
+  getAll: () => api.get('/warehouse/export-vouchers'),
+  getById: (id) => api.get(`/warehouse/export-vouchers/${id}`),
+  getByDateRange: (from, to) => api.get('/warehouse/export-vouchers/date-range', { params: { from, to } }),
+  create: (data) => api.post('/warehouse/export-vouchers', data),
+  delete: (id) => api.delete(`/warehouse/export-vouchers/${id}`),
+  getMonthlyProfitSummary: (year, month) => 
+    api.get(`/warehouse/export-vouchers/profit/monthly-summary`, { params: { year, month } }),
+  getYearlyProfitReport: (year) => 
+    api.get(`/warehouse/export-vouchers/profit/yearly`, { params: { year } }),
 }
 
 export const tourAPI = {
@@ -116,6 +130,25 @@ export const reviewAPI = {
   getByCustomer: (customerId) => api.get(`/reviews/customer/${customerId}`),
   create:        (data)       => api.post('/reviews', data),
   reply:         (id, data)   => api.put(`/reviews/${id}/reply`, data),
+}
+
+export const importVoucherAPI = {
+  getAll: () => api.get('/warehouse/import-vouchers'),
+
+  getById: (id) =>
+    api.get(`/warehouse/import-vouchers/${id}`),
+
+  create: (data) =>
+    api.post('/warehouse/import-vouchers', data),
+
+  approve: (id) =>
+    api.post(`/warehouse/import-vouchers/${id}/approve`),
+
+  reject: (id) =>
+    api.post(`/warehouse/import-vouchers/${id}/reject`),
+
+  delete: (id) =>
+    api.delete(`/warehouse/import-vouchers/${id}`),
 }
 
 export default api

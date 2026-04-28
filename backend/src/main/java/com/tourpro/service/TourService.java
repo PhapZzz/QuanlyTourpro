@@ -138,15 +138,86 @@ public class TourService {
     }
 
     /** Tính giá tour tự động từ tổng chi phí dịch vụ */
-    public TourDTO.Response recalculatePrice(Long tourId, double marginPercent) {
+    public TourDTO.Response recalculatePrice(
+            Long tourId,
+            double marginPercent
+    ) {
+
         Tour tour = tourRepo.findById(tourId)
-                .orElseThrow(() -> new RuntimeException("Tour not found"));
-        BigDecimal totalCost = tourSvcRepo.sumCostByTourId(tourId);
-        // Giá bán = chi phí × (1 + margin%)
-        BigDecimal newPrice = totalCost.multiply(
-                BigDecimal.ONE.add(BigDecimal.valueOf(marginPercent / 100)));
-        tour.setPriceAdult(newPrice.setScale(0, java.math.RoundingMode.CEILING));
-        return toResponse(tourRepo.save(tour));
+                .orElseThrow(() ->
+                        new RuntimeException("Tour not found"));
+
+        // ================= TỔNG CHI PHÍ =================
+
+        BigDecimal totalCost =
+                Optional.ofNullable(
+                        tourSvcRepo.sumCostByTourId(tourId)
+                ).orElse(BigDecimal.ZERO);
+
+        // lưu estimated cost
+//        tour.setEstimatedCost(totalCost);
+
+        // ================= SỨC CHỨA =================
+
+        int capacity =
+                tour.getCapacity() != null
+                        && tour.getCapacity() > 0
+                        ? tour.getCapacity()
+                        : 1;
+
+        // ================= GIÁ COST / NGƯỜI =================
+
+        BigDecimal costPerPerson =
+                totalCost.divide(
+                        BigDecimal.valueOf(capacity),
+                        0,
+                        java.math.RoundingMode.HALF_UP
+                );
+
+        // ================= MARGIN =================
+
+        BigDecimal margin =
+                BigDecimal.valueOf(marginPercent)
+                        .divide(
+                                BigDecimal.valueOf(100),
+                                2,
+                                java.math.RoundingMode.HALF_UP
+                        );
+
+        // ================= GIÁ NGƯỜI LỚN =================
+
+        BigDecimal adultPrice =
+                costPerPerson.multiply(
+                        BigDecimal.ONE.add(margin)
+                );
+
+        // làm tròn đẹp
+        adultPrice = adultPrice.setScale(
+                -3,
+                java.math.RoundingMode.HALF_UP
+        );
+
+        // ================= GIÁ TRẺ EM =================
+
+        BigDecimal childPrice =
+                adultPrice.multiply(
+                        BigDecimal.valueOf(0.75)
+                );
+
+        childPrice = childPrice.setScale(
+                -3,
+                java.math.RoundingMode.HALF_UP
+        );
+
+        // ================= SAVE =================
+
+        tour.setPriceAdult(adultPrice);
+
+        tour.setPriceChild(childPrice);
+
+        Tour saved = tourRepo.save(tour);
+
+        return toResponse(saved);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -162,6 +233,43 @@ public class TourService {
                 .tour(tour).departureDate(req.getDepartureDate())
                 .capacity(req.getCapacity()).booked(0).guide(guide)
                 .status(TourSchedule.ScheduleStatus.OPEN).build();
+
+        for (TourServiceItem ts : tour.getServices()) {
+
+            Product product = ts.getProduct();
+
+            Integer currentQty =
+                    product.getStockQty() != null
+                            ? product.getStockQty()
+                            : 0;
+
+            int requiredQty = ts.getQuantity();
+
+            // check tồn kho
+            if (currentQty < requiredQty) {
+
+                throw new RuntimeException(
+                        "Dịch vụ "
+                                + product.getName()
+                                + " không đủ số lượng tồn"
+                );
+            }
+
+            // trừ kho
+            int newQty = currentQty - requiredQty;
+
+            product.setStockQty(newQty);
+
+            // auto update status
+            if (newQty <= 0) {
+
+                product.setStatus(
+                        Product.ProductStatus.OUT_OF_STOCK
+                );
+            }
+
+            productRepo.save(product);
+        }
         scheduleRepo.save(s);
         return toResponse(tour);
     }
@@ -205,31 +313,88 @@ public class TourService {
     }
 
     public TourDTO.Response toResponse(Tour t) {
+
         Double avgRating = reviewRepo.avgRatingByTour(t.getId());
+
         BigDecimal estimatedCost = tourSvcRepo.sumCostByTourId(t.getId());
 
         List<TourDTO.ServiceItem> services = tourSvcRepo
                 .findByTour_IdOrderBySortOrderAsc(t.getId())
-                .stream().map(this::toServiceItem).toList();
+                .stream()
+                .map(this::toServiceItem)
+                .toList();
+
+        // =====================================================
+        // LOAD ALL SCHEDULES + AUTO UPDATE STATUS
+        // =====================================================
 
         List<TourDTO.ScheduleResponse> schedules = scheduleRepo
-                .findUpcomingByTour(t.getId(), LocalDate.now())
-                .stream().map(s -> TourDTO.ScheduleResponse.builder()
-                        .id(s.getId()).departureDate(s.getDepartureDate())
-                        .capacity(s.getCapacity()).booked(s.getBooked())
-                        .available(s.getCapacity() - s.getBooked())
-                        .status(s.getStatus().name()).build())
+                .findByTour_IdOrderByDepartureDateAsc(t.getId())
+                .stream()
+                .map(s -> {
+
+                    // CANCELLED giữ nguyên
+                    if (s.getStatus() != TourSchedule.ScheduleStatus.CANCELLED) {
+
+                        // Tour đã qua ngày
+                        if (s.getDepartureDate().isBefore(LocalDate.now())) {
+
+                            if (s.getStatus() != TourSchedule.ScheduleStatus.COMPLETED) {
+                                s.setStatus(TourSchedule.ScheduleStatus.COMPLETED);
+                                scheduleRepo.save(s);
+                            }
+
+                        }
+
+                        // Tour đầy chỗ
+                        else if (s.getBooked() >= s.getCapacity()) {
+
+                            if (s.getStatus() != TourSchedule.ScheduleStatus.FULL) {
+                                s.setStatus(TourSchedule.ScheduleStatus.FULL);
+                                scheduleRepo.save(s);
+                            }
+
+                        }
+
+                        // Tour còn mở
+                        else {
+
+                            if (s.getStatus() != TourSchedule.ScheduleStatus.OPEN) {
+                                s.setStatus(TourSchedule.ScheduleStatus.OPEN);
+                                scheduleRepo.save(s);
+                            }
+
+                        }
+                    }
+
+                    return TourDTO.ScheduleResponse.builder()
+                            .id(s.getId())
+                            .departureDate(s.getDepartureDate())
+                            .capacity(s.getCapacity())
+                            .booked(s.getBooked())
+                            .available(s.getCapacity() - s.getBooked())
+                            .status(s.getStatus().name())
+                            .build();
+                })
                 .toList();
 
         return TourDTO.Response.builder()
-                .id(t.getId()).code(t.getCode()).name(t.getName())
-                .type(t.getType()   != null ? t.getType().name()   : null)
+                .id(t.getId())
+                .code(t.getCode())
+                .name(t.getName())
+                .type(t.getType() != null ? t.getType().name() : null)
                 .status(t.getStatus() != null ? t.getStatus().name() : null)
-                .origin(t.getOrigin()).destination(t.getDestination())
-                .days(t.getDays()).nights(t.getNights()).capacity(t.getCapacity())
-                .priceAdult(t.getPriceAdult()).priceChild(t.getPriceChild())
-                .description(t.getDescription()).itinerary(t.getItinerary())
-                .included(t.getIncluded()).notIncluded(t.getNotIncluded())
+                .origin(t.getOrigin())
+                .destination(t.getDestination())
+                .days(t.getDays())
+                .nights(t.getNights())
+                .capacity(t.getCapacity())
+                .priceAdult(t.getPriceAdult())
+                .priceChild(t.getPriceChild())
+                .description(t.getDescription())
+                .itinerary(t.getItinerary())
+                .included(t.getIncluded())
+                .notIncluded(t.getNotIncluded())
                 .estimatedCost(estimatedCost)
                 .avgRating(avgRating)
                 .services(services)

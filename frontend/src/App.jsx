@@ -33,8 +33,10 @@ import ImportVouchers    from './pages/staff/ImportVouchers'
 
 // Staff – Sales
 import SalesBookings from './pages/staff/SalesBookings'
-import SalesExport   from './pages/staff/SalesExport'
+// import SalesExport   from './pages/staff/SalesExport'
 import SalesProfit   from './pages/staff/SalesProfit'
+import SalesCustomers from './pages/staff/SalesCustomers'
+import SalesTours from './pages/staff/SalesTours'
 
 // Customer portal
 import CustomerHome    from './pages/customer/CustomerHome'
@@ -90,8 +92,10 @@ export default function App() {
             <Route path="warehouse/suppliers" element={<WarehouseSuppliers />} />
             <Route path="warehouse/import"    element={<ImportVouchers />} />
             <Route path="sales/bookings"      element={<SalesBookings />} />
-            <Route path="sales/export"        element={<SalesExport />} />
+{/*             <Route path="sales/export"        element={<SalesExport />} /> */}
             <Route path="sales/profit"        element={<SalesProfit />} />
+            <Route path="sales/customers" element={<SalesCustomers />} />
+            <Route path="sales/tours"         element={<SalesTours />} />
             <Route path="/staff/profile" element={<ProfilePage />} />
           </Route>
 

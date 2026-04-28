@@ -1,112 +1,596 @@
-import React, { useState } from 'react'
-import { Table, Button, Tag, Modal, Form, Select, DatePicker, InputNumber, message, Typography, Card, Row, Col, Statistic } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { adminAPI } from '../../services/api'
+import React, { useState, useEffect } from 'react'
+import {
+  Table, Button, Modal, Form, Select, DatePicker,
+  InputNumber, message, Card, Row, Col, Typography, Tabs,
+  Statistic, Tag, Space, Input
+} from 'antd'
+import { PlusOutlined, ReloadOutlined, DollarOutlined, RiseOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
+import numeral from 'numeral'
 
-const fmt  = v => v ? new Intl.NumberFormat('vi-VN').format(v)+' ₫' : '—'
-const fmtM = v => v ? Math.round((v??0)/1e6)+'M' : '—'
+import { exportVoucherAPI, tourAPI, bookingAPI } from '../../services/api'
 
-// ===================== SalesExport =====================
-export function SalesExport() {
-  const [vouchers, setVouchers] = useState([
-    { id:1, code:'PX-2026-088', date:'2026-03-15', booking:'DT-2026-1023', service:'Phòng Deluxe × 70', total:126000000, createdBy:'Phạm Thị KD' },
-    { id:2, code:'PX-2026-087', date:'2026-03-14', booking:'DT-2026-1024', service:'Vé bay HAN-DAD × 84', total:105000000, createdBy:'Phạm Thị KD' },
-    { id:3, code:'PX-2026-086', date:'2026-03-10', booking:'DT-2026-0081', service:'Phòng Beach Villa × 10', total:45000000, createdBy:'Phạm Thị KD' },
-  ])
+const { Title, Text } = Typography
+const { RangePicker } = DatePicker
+
+const COLOR = {
+  teal: '#1D9E75',
+  green: '#52c41a',
+  red: '#f5222d',
+  blue: '#1890ff',
+  orange: '#fa8c16'
+}
+
+// Tab 1: Export Voucher List
+function ExportVoucherTab() {
   const [open, setOpen] = useState(false)
-  const [form]          = Form.useForm()
+  const [loading, setLoading] = useState(false)
+  const [vouchers, setVouchers] = useState([])
+  const [bookings, setBookings] = useState([])
+  const [form] = Form.useForm()
+  const [items, setItems] = useState([])
 
-  const onFinish = (values) => {
-    const code = `PX-${new Date().getFullYear()}-${String(vouchers.length+1).padStart(3,'0')}`
-    setVouchers([{ id:Date.now(), code, date:values.date?.format('YYYY-MM-DD'), booking:'Mới', service:'Chi tiết dịch vụ', total:0, createdBy:'Bạn' }, ...vouchers])
-    message.success('Lập phiếu xuất thành công'); setOpen(false)
+  useEffect(() => {
+    loadVouchers()
+    loadBookings()
+  }, [])
+
+  const loadVouchers = async () => {
+    setLoading(true)
+    try {
+      const res = await exportVoucherAPI.getAll()
+      setVouchers(res.data || [])
+    } catch (err) {
+      message.error('Failed to load vouchers')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const cols = [
-    { title:'Số phiếu', dataIndex:'code', render:v=><strong>{v}</strong> },
-    { title:'Ngày xuất', dataIndex:'date' },
-    { title:'Đơn đặt tour', dataIndex:'booking', render:v=><Tag color="blue">{v}</Tag> },
-    { title:'Dịch vụ xuất', dataIndex:'service' },
-    { title:'Tổng tiền', dataIndex:'total', render:v=><strong style={{color:'#1D9E75'}}>{fmt(v)}</strong> },
-    { title:'Người lập', dataIndex:'createdBy' },
+  const loadBookings = async () => {
+    try {
+      const res = await bookingAPI.getAll({ status: 'CONFIRMED' })
+
+      const data =
+        res?.data?.data?.content ??
+        res?.data?.content ??
+        res?.data ??
+        []
+
+      setBookings(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to load bookings', err)
+      setBookings([])
+    }
+  }
+
+  const onSelectBooking = async (bookingId) => {
+    try {
+      const res = await bookingAPI.getById(bookingId)
+      const booking = res.data
+      
+      if (booking?.tourSchedule?.tour) {
+        const tourRes = await tourAPI.getById(booking.tourSchedule.tour.id)
+        const tour = tourRes.data
+        
+        if (tour?.services) {
+          setItems(tour.services.map(s => ({
+            productId: s.id,
+            productName: s.name,
+            qty: 1,
+            unitPrice: s.price || 0
+          })))
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load booking details', err)
+    }
+  }
+
+  const onSubmit = async (values) => {
+    try {
+      const payload = {
+        bookingId: values.bookingId,
+        note: values.note,
+        details: items.map(i => ({
+          productId: i.productId,
+          qty: i.qty,
+          unitPrice: i.unitPrice
+        }))
+      }
+
+      await exportVoucherAPI.create(payload)
+      message.success('Tạo phiếu xuất thành công')
+      setOpen(false)
+      form.resetFields()
+      setItems([])
+      loadVouchers()
+    } catch (err) {
+      message.error('Failed to create voucher')
+    }
+  }
+
+  const totalAmount = items.reduce((sum, i) => sum + (i.qty * i.unitPrice), 0)
+
+  const columns = [
+    {
+      title: 'Mã phiếu',
+      dataIndex: 'code',
+      key: 'code',
+      width: 120,
+      render: (text) => <Tag color="blue">{text}</Tag>
+    },
+    {
+      title: 'Ngày',
+      dataIndex: 'date',
+      key: 'date',
+      width: 120,
+      render: (date) => dayjs(date).format('DD/MM/YYYY')
+    },
+    {
+      title: 'Booking',
+      dataIndex: 'bookingCode',
+      key: 'bookingCode',
+      width: 120
+    },
+    {
+      title: 'Tour',
+      dataIndex: 'tourName',
+      key: 'tourName'
+    },
+    {
+      title: 'Khách hàng',
+      dataIndex: 'customerName',
+      key: 'customerName',
+      width: 150
+    },
+    {
+      title: 'Tổng tiền',
+      dataIndex: 'total',
+      key: 'total',
+      width: 150,
+      align: 'right',
+      render: (val) => <Text strong>{numeral(val).format('0,0')} ₫</Text>
+    },
+    {
+      title: 'Người tạo',
+      dataIndex: 'createdByName',
+      key: 'createdByName',
+      width: 120
+    },
+    {
+      title: 'Ghi chú',
+      dataIndex: 'note',
+      key: 'note',
+      ellipsis: true
+    }
   ]
 
   return (
-    <>
-      <div style={{display:'flex',justifyContent:'space-between',marginBottom:16}}>
-        <Typography.Title level={4} style={{margin:0}}>Phiếu xuất tour</Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={()=>{form.resetFields();setOpen(true)}} style={{background:'#1D9E75'}}>Lập phiếu xuất</Button>
-      </div>
-      <Table columns={cols} dataSource={vouchers} rowKey="id" size="small" pagination={{pageSize:10}} />
-      <Modal title="Lập phiếu xuất tour" open={open} onCancel={()=>setOpen(false)} onOk={()=>form.submit()} okText="Lưu phiếu">
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item name="bookingCode" label="Mã đơn đặt tour"><Select options={[{value:'DT-2026-1024',label:'DT-2026-1024 – Phú Quốc'},{value:'DT-2026-1023',label:'DT-2026-1023 – Đà Nẵng'}]} /></Form.Item>
-          <Form.Item name="date" label="Ngày xuất" rules={[{required:true}]} initialValue={dayjs()}><DatePicker style={{width:'100%'}} format="DD/MM/YYYY" /></Form.Item>
-          <Form.Item name="productId" label="Dịch vụ xuất"><Select options={[{value:1,label:'Phòng Deluxe Sea View'},{value:3,label:'Vé bay HAN-DAD'},{value:5,label:'Set ăn sáng'}]} /></Form.Item>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
-            <Form.Item name="qty" label="Số lượng"><InputNumber min={1} style={{width:'100%'}} /></Form.Item>
-            <Form.Item name="unitPrice" label="Đơn giá (₫)"><InputNumber min={0} style={{width:'100%'}} formatter={v=>`${v}`.replace(/\B(?=(\d{3})+(?!\d))/g,',')} /></Form.Item>
-          </div>
+    <div>
+      <Space style={{ marginBottom: 16 }}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setOpen(true)}
+        >
+          Tạo phiếu xuất TOUR
+        </Button>
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={loadVouchers}
+        >
+          Làm mới
+        </Button>
+      </Space>
+
+      <Table
+        dataSource={vouchers}
+        rowKey="id"
+        columns={columns}
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+        scroll={{ x: 1000 }}
+      />
+
+      <Modal
+        open={open}
+        onCancel={() => {
+          setOpen(false)
+          form.resetFields()
+          setItems([])
+        }}
+        title="Tạo phiếu xuất TOUR"
+        width={800}
+        footer={null}
+      >
+        <Form form={form} onFinish={onSubmit} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="bookingId"
+                label="Chọn Booking"
+                rules={[{ required: true, message: 'Vui lòng chọn booking' }]}
+              >
+                <Select
+                  placeholder="Chọn booking"
+                  onChange={onSelectBooking}
+                  showSearch
+                  optionFilterProp="children"
+                >
+                  {bookings.map(b => (
+                    <Select.Option key={b.id} value={b.id}>
+                      {b.code} - {b.tourSchedule?.tour?.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="note" label="Ghi chú">
+                <Input.TextArea rows={2} placeholder="Nhập ghi chú (nếu có)" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {items.length > 0 && (
+            <Card title="Danh sách dịch vụ" size="small">
+              <Table
+                dataSource={items}
+                rowKey="productId"
+                pagination={false}
+                size="small"
+                columns={[
+                  {
+                    title: 'Dịch vụ',
+                    dataIndex: 'productName',
+                    key: 'productName'
+                  },
+                  {
+                    title: 'Số lượng',
+                    dataIndex: 'qty',
+                    key: 'qty',
+                    width: 100,
+                    render: (val, record, idx) => (
+                      <InputNumber
+                        min={1}
+                        value={val}
+                        onChange={v => {
+                          const newItems = [...items]
+                          newItems[idx].qty = v || 1
+                          setItems(newItems)
+                        }}
+                        style={{ width: '100%' }}
+                      />
+                    )
+                  },
+                  {
+                    title: 'Đơn giá',
+                    dataIndex: 'unitPrice',
+                    key: 'unitPrice',
+                    width: 150,
+                    align: 'right',
+                    render: (val) => numeral(val).format('0,0') + ' ₫'
+                  },
+                  {
+                    title: 'Thành tiền',
+                    key: 'amount',
+                    width: 150,
+                    align: 'right',
+                    render: (_, record) => (
+                      <Text strong>{numeral(record.qty * record.unitPrice).format('0,0')} ₫</Text>
+                    )
+                  }
+                ]}
+              />
+              <div style={{ marginTop: 16, textAlign: 'right' }}>
+                <Title level={4}>Tổng cộng: {numeral(totalAmount).format('0,0')} ₫</Title>
+              </div>
+            </Card>
+          )}
+
+          <Form.Item style={{ marginTop: 16, marginBottom: 0 }}>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Tạo phiếu xuất
+              </Button>
+              <Button onClick={() => {
+                setOpen(false)
+                form.resetFields()
+                setItems([])
+              }}>
+                Hủy
+              </Button>
+            </Space>
+          </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   )
 }
 
-// ===================== SalesProfit =====================
-const profitData = [
-  { month:'T1/26', revenue:842, cost:534, profit:308 },
-  { month:'T2/26', revenue:776, cost:490, profit:286 },
-  { month:'T3/26', revenue:720, cost:460, profit:260 },
-  { month:'T4/26', revenue:0,   cost:0,   profit:0 },
-  { month:'T5/26', revenue:0,   cost:0,   profit:0 },
-  { month:'T6/26', revenue:0,   cost:0,   profit:0 },
-]
+// Tab 2: Monthly Profit Report
+function MonthlyProfitTab() {
+  const [loading, setLoading] = useState(false)
+  const [year, setYear] = useState(dayjs().year())
+  const [month, setMonth] = useState(dayjs().month() + 1)
+  const [profitData, setProfitData] = useState(null)
+  const [vouchers, setVouchers] = useState([])
 
-export function SalesProfit() {
-  const [month, setMonth] = useState(3)
-  const [year,  setYear]  = useState(2026)
-  const [data,  setData]  = useState(null)
-  const [loading, setLoad]= useState(false)
+  useEffect(() => {
+    loadProfitData()
+  }, [year, month])
 
-  const load = async () => {
-    setLoad(true)
-    try { const r = await adminAPI.getRevenueReport(month, year); setData(r.data.data) }
-    catch { message.error('Không tải được') } finally { setLoad(false) }
+  const loadProfitData = async () => {
+    setLoading(true)
+    try {
+      const summaryRes = await exportVoucherAPI.getMonthlyProfitSummary(year, month)
+      setProfitData(summaryRes.data)
+      
+      const fromDate = dayjs().year(year).month(month - 1).startOf('month').format('YYYY-MM-DD')
+      const toDate = dayjs().year(year).month(month - 1).endOf('month').format('YYYY-MM-DD')
+      const vouchersRes = await exportVoucherAPI.getByDateRange(fromDate, toDate)
+      setVouchers(vouchersRes.data || [])
+    } catch (err) {
+      console.error('Failed to load profit data', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
+  const columns = [
+    { title: 'Mã phiếu', dataIndex: 'code', key: 'code' },
+    { title: 'Ngày', dataIndex: 'date', key: 'date', render: d => dayjs(d).format('DD/MM/YYYY') },
+    { title: 'Tour', dataIndex: 'tourName', key: 'tourName' },
+    { title: 'Tổng tiền', dataIndex: 'total', key: 'total', align: 'right', render: v => numeral(v).format('0,0') + ' ₫' },
+  ]
+
   return (
-    <>
-      <Typography.Title level={4}>Doanh thu & Lợi nhuận</Typography.Title>
-      <div style={{display:'flex',gap:8,marginBottom:16,flexWrap:'wrap'}}>
-        <Select value={month} onChange={setMonth} style={{width:130}} options={Array.from({length:12},(_,i)=>({value:i+1,label:`Tháng ${i+1}`}))} />
-        <Select value={year}  onChange={setYear}  style={{width:110}} options={[2025,2026].map(y=>({value:y,label:`Năm ${y}`}))} />
-        <Button type="primary" onClick={load} loading={loading} style={{background:'#1D9E75'}}>Xem báo cáo</Button>
-        <Button onClick={()=>message.info('Xuất báo cáo đang phát triển')}>⬇ Xuất báo cáo</Button>
-      </div>
-      <Row gutter={[16,16]} style={{marginBottom:20}}>
-        <Col xs={12} sm={6}><Card><Statistic title="Doanh thu" value={fmtM(data?.totalRevenue??842000000)+' ₫'} valueStyle={{color:'#1D9E75'}} suffix={<span style={{fontSize:12,color:'#1D9E75'}}> ↑ 8.5%</span>} /></Card></Col>
-        <Col xs={12} sm={6}><Card><Statistic title="Chi phí DV" value={fmtM(data?.totalCost??534000000)+' ₫'} /></Card></Col>
-        <Col xs={12} sm={6}><Card><Statistic title="Số đơn" value={data?.totalBookings??127} /></Card></Col>
-        <Col xs={12} sm={6}><Card><Statistic title="Lợi nhuận gộp" value={fmtM(data?.grossProfit??308000000)+' ₫'} valueStyle={{color:'#1D9E75'}} suffix={data?.profitMargin ? <span style={{fontSize:12}}> ({data.profitMargin.toFixed(1)}%)</span>:''} /></Card></Col>
+    <div>
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={4}>
+          <Select
+            value={year}
+            onChange={setYear}
+            style={{ width: '100%' }}
+            options={[
+              { value: 2024, label: '2024' },
+              { value: 2025, label: '2025' },
+              { value: 2026, label: '2026' },
+            ]}
+          />
+        </Col>
+        <Col span={4}>
+          <Select
+            value={month}
+            onChange={setMonth}
+            style={{ width: '100%' }}
+            options={Array.from({ length: 12 }, (_, i) => ({
+              value: i + 1,
+              label: `Tháng ${i + 1}`
+            }))}
+          />
+        </Col>
+        <Col span={4}>
+          <Button icon={<ReloadOutlined />} onClick={loadProfitData}>
+            Làm mới
+          </Button>
+        </Col>
       </Row>
-      <Card title="Doanh thu – Chi phí – Lợi nhuận 2026 (triệu ₫)">
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={profitData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="month" /><YAxis />
-            <Tooltip formatter={v=>[v+'M ₫']} />
-            <Legend />
-            <Bar dataKey="revenue" name="Doanh thu" fill="#1D9E75" radius={[4,4,0,0]} />
-            <Bar dataKey="cost"    name="Chi phí"   fill="#9FE1CB" radius={[4,4,0,0]} />
-            <Bar dataKey="profit"  name="Lợi nhuận" fill="#EF9F27" radius={[4,4,0,0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
-    </>
+
+      {profitData && (
+        <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Tổng doanh thu"
+                value={profitData.revenue}
+                precision={0}
+                suffix="₫"
+                formatter={v => numeral(v).format('0,0')}
+                prefix={<DollarOutlined />}
+                valueStyle={{ color: COLOR.blue }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Tổng chi phí (70%)"
+                value={profitData.cost}
+                precision={0}
+                suffix="₫"
+                formatter={v => numeral(v).format('0,0')}
+                prefix={<DollarOutlined />}
+                valueStyle={{ color: COLOR.orange }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Lợi nhuận"
+                value={profitData.profit}
+                precision={0}
+                suffix="₫"
+                formatter={v => numeral(v).format('0,0')}
+                prefix={<RiseOutlined />}
+                valueStyle={{ color: COLOR.green }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Số phiếu xuất"
+                value={profitData.exportCount}
+                suffix=" phiếu"
+              />
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      <Table
+        dataSource={vouchers}
+        rowKey="id"
+        columns={columns}
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+      />
+    </div>
   )
 }
 
-export default SalesProfit
+// Tab 3: Yearly Profit Report
+function YearlyProfitTab() {
+  const [loading, setLoading] = useState(false)
+  const [year, setYear] = useState(dayjs().year())
+  const [profitData, setProfitData] = useState([])
+
+  useEffect(() => {
+    loadYearlyProfit()
+  }, [year])
+
+  const loadYearlyProfit = async () => {
+    setLoading(true)
+    try {
+      const res = await exportVoucherAPI.getYearlyProfitReport(year)
+      setProfitData(res.data || [])
+    } catch (err) {
+      console.error('Failed to load yearly profit', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const columns = [
+    {
+      title: 'Tháng',
+      dataIndex: 'date',
+      key: 'month',
+      render: (d) => `Tháng ${dayjs(d).month() + 1}`
+    },
+    {
+      title: 'Doanh thu',
+      dataIndex: 'revenue',
+      key: 'revenue',
+      align: 'right',
+      render: (v) => <Text strong>{numeral(v).format('0,0')} ₫</Text>
+    },
+    {
+      title: 'Chi phí',
+      dataIndex: 'cost',
+      key: 'cost',
+      align: 'right',
+      render: (v) => numeral(v).format('0,0') + ' ₫'
+    },
+    {
+      title: 'Lợi nhuận',
+      dataIndex: 'profit',
+      key: 'profit',
+      align: 'right',
+      render: (v) => (
+        <Text style={{ color: v >= 0 ? COLOR.green : COLOR.red }}>
+          {v >= 0 ? '+' : ''}{numeral(v).format('0,0')} ₫
+        </Text>
+      )
+    },
+    {
+      title: 'Số phiếu',
+      dataIndex: 'exportCount',
+      key: 'exportCount',
+      align: 'center'
+    }
+  ]
+
+  const totalRevenue = profitData.reduce((sum, p) => sum + (p.revenue || 0), 0)
+  const totalCost = profitData.reduce((sum, p) => sum + (p.cost || 0), 0)
+  const totalProfit = profitData.reduce((sum, p) => sum + (p.profit || 0), 0)
+  const totalExports = profitData.reduce((sum, p) => sum + (p.exportCount || 0), 0)
+
+  return (
+    <div>
+      <Row gutter={16} style={{ marginBottom: 16 }}>
+        <Col span={4}>
+          <Select
+            value={year}
+            onChange={setYear}
+            style={{ width: '100%' }}
+            options={[
+              { value: 2024, label: '2024' },
+              { value: 2025, label: '2025' },
+              { value: 2026, label: '2026' },
+            ]}
+          />
+        </Col>
+        <Col span={4}>
+          <Button icon={<ReloadOutlined />} onClick={loadYearlyProfit}>
+            Làm mới
+          </Button>
+        </Col>
+      </Row>
+
+      <Table
+        dataSource={profitData}
+        rowKey="date"
+        columns={columns}
+        loading={loading}
+        pagination={false}
+        summary={() => (
+          <Table.Summary fixed>
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0}><Text strong>TỔNG CỘNG</Text></Table.Summary.Cell>
+              <Table.Summary.Cell index={1} align="right">
+                <Text strong>{numeral(totalRevenue).format('0,0')} ₫</Text>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={2} align="right">
+                <Text>{numeral(totalCost).format('0,0')} ₫</Text>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={3} align="right">
+                <Text strong style={{ color: totalProfit >= 0 ? COLOR.green : COLOR.red }}>
+                  {totalProfit >= 0 ? '+' : ''}{numeral(totalProfit).format('0,0')} ₫
+                </Text>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={4} align="center">
+                <Text strong>{totalExports}</Text>
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+          </Table.Summary>
+        )}
+      />
+    </div>
+  )
+}
+
+// Main Component
+// import SalesProfit from './SalesProfit' {
+    export default function SalesProfit() {
+  const items = [
+    {
+      key: '1',
+      label: 'Danh sách phiếu xuất',
+      children: <ExportVoucherTab />
+    },
+    {
+      key: '2',
+      label: 'Báo cáo tháng',
+      children: <MonthlyProfitTab />
+    },
+    {
+      key: '3',
+      label: 'Báo cáo năm',
+      children: <YearlyProfitTab />
+    }
+  ]
+
+  return (
+    <div>
+      <Title level={4} style={{ marginBottom: 16 }}>
+        <DollarOutlined style={{ marginRight: 8, color: COLOR.teal }} />
+        Quản lý lợi nhuận bán hàng
+      </Title>
+      <Tabs items={items} />
+    </div>
+  )
+}

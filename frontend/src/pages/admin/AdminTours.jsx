@@ -203,7 +203,31 @@ export default function AdminTours() {
       render: v => <Tag color={v===0?'red':v<5?'orange':'green'}>{v}</Tag>,
       align:'center' },
     { title:'Trạng thái', dataIndex:'status',
-      render: v => <Tag color={v==='OPEN'?'green':v==='FULL'?'red':'default'}>{v}</Tag> },
+      render: v => {
+        const color =
+          v === 'OPEN'
+            ? 'green'
+            : v === 'FULL'
+            ? 'red'
+            : v === 'COMPLETED'
+            ? 'blue'
+            : v === 'CANCELLED'
+            ? 'default'
+            : 'default'
+
+        const label =
+          v === 'OPEN'
+            ? 'Đang mở'
+            : v === 'FULL'
+            ? 'Đã đầy'
+            : v === 'COMPLETED'
+            ? 'Đã khởi hành'
+            : v === 'CANCELLED'
+            ? 'Đã huỷ'
+            : v
+
+        return <Tag color={color}>{label}</Tag>
+      } },
   ]
 
   // ── Render ────────────────────────────────────────────────

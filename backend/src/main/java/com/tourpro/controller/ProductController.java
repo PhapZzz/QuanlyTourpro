@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/warehouse/products")
@@ -106,5 +108,34 @@ public class ProductController {
                 .stockQty(pr.getStockQty()).minStock(pr.getMinStock())
                 .status(pr.getStatus() != null ? pr.getStatus().name() : null)
                 .build();
+    }
+    @GetMapping("/statistics")
+    public ResponseEntity<ApiResponse<List<ProductStatisticDTO>>> statistics(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year
+    ) {
+
+        var raw = productRepo.getProductStatistics(month, year);
+
+        List<ProductStatisticDTO> result = raw.stream().map(r ->
+                ProductStatisticDTO.builder()
+                        .productCode((String) r[0])
+                        .productName((String) r[1])
+                        .totalImportQty(((Number) r[2]).intValue())
+                        .totalExportQty(((Number) r[3]).intValue())
+                        .totalImportValue(
+                                r[4] != null
+                                        ? new BigDecimal(r[4].toString())
+                                        : BigDecimal.ZERO
+                        )
+                        .totalRevenue(
+                                r[5] != null
+                                        ? new BigDecimal(r[5].toString())
+                                        : BigDecimal.ZERO
+                        )
+                        .build()
+        ).toList();
+
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 }

@@ -51,7 +51,7 @@ public class SecurityConfig {
 
                         // ── Warehouse / Sales ────────────────────────────────
                         .requestMatchers("/api/warehouse/**")
-                        .hasAnyRole("ADMIN", "WAREHOUSE_MANAGER")
+                        .hasAnyRole("ADMIN", "WAREHOUSE_MANAGER","SALES_MANAGER")
                         .requestMatchers("/api/sales/**")
                         .hasAnyRole("ADMIN", "SALES_MANAGER")
 

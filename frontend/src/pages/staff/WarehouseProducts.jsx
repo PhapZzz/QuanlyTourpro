@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import dayjs from 'dayjs'
+
 import {
   Table,
   Button,
@@ -17,7 +19,9 @@ import {
   Col,
   Statistic,
   Tooltip,
+  DatePicker,
 } from 'antd'
+
 import {
   PlusOutlined,
   EditOutlined,
@@ -26,6 +30,7 @@ import {
   ReloadOutlined,
   FileTextOutlined,
 } from '@ant-design/icons'
+
 import { productAPI, supplierAPI } from '../../services/api'
 
 const TYPE_COLOR = {
@@ -64,31 +69,40 @@ const STATUS_COLOR = {
   INACTIVE: 'default',
 }
 
-const fmt = (v) => new Intl.NumberFormat('vi-VN').format(Number(v || 0))
+const fmt = (v) =>
+  new Intl.NumberFormat('vi-VN').format(Number(v || 0))
 
 export default function TourServiceManagement() {
   const [data, setData] = useState([])
   const [suppliers, setSuppliers] = useState([])
+  const [statistics, setStatistics] = useState([])
+
   const [loading, setLoading] = useState(false)
+  const [reportLoading, setReportLoading] = useState(false)
 
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(null)
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
-  const [supplierFilter, setSupplierFilter] = useState('')
+
+  const [statMonth, setStatMonth] = useState(dayjs().month() + 1)
+  const [statYear, setStatYear] = useState(dayjs().year())
 
   const [form] = Form.useForm()
 
+  // ================= LOAD PRODUCTS =================
+
   const load = async () => {
     setLoading(true)
+
     try {
       const r = await productAPI.getAll({
         search,
         type: typeFilter,
-        supplierId: supplierFilter,
         size: 50,
       })
+
       setData(r.data.data?.content ?? [])
     } catch (error) {
       message.error('Không tải được danh sách dịch vụ')
@@ -97,224 +111,384 @@ export default function TourServiceManagement() {
     }
   }
 
-  useEffect(() => {
-    load()
-  }, [search, typeFilter, supplierFilter])
+  // ================= LOAD SUPPLIERS =================
 
-  useEffect(() => {
-    supplierAPI
-      .getAll({})
-      .then((r) => {
-        const raw = r.data.data ?? []
-        const options = raw.map((s) => ({
+  const loadSuppliers = async () => {
+    try {
+      const r = await supplierAPI.getAll({})
+
+      const raw = r.data.data?.content || r.data.data || []
+
+      setSuppliers(
+        raw.map((s) => ({
           value: s.id,
           label: s.name,
         }))
-        setSuppliers(options)
-      })
-      .catch(() => {
-        message.warning('Không tải được danh sách nhà cung cấp')
-      })
+      )
+    } catch (error) {
+      message.warning('Không tải được danh sách nhà cung cấp')
+    }
+  }
+
+  // ================= LOAD REPORT =================
+
+  const loadStatistics = async () => {
+    setReportLoading(true)
+
+    try {
+      const r = await productAPI.statistics(
+        statMonth,
+        statYear
+      )
+
+      setStatistics(r.data.data || [])
+    } catch (error) {
+      message.error('Không tải được báo cáo thống kê')
+    } finally {
+      setReportLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    load()
+  }, [search, typeFilter])
+
+  useEffect(() => {
+    loadSuppliers()
   }, [])
+
+  useEffect(() => {
+    loadStatistics()
+  }, [statMonth, statYear])
+
+  // ================= CREATE =================
 
   const openCreate = () => {
     setEditing(null)
+
     form.resetFields()
+
     form.setFieldsValue({
       minStock: 10,
+      stockQty: 0,
       status: 'ACTIVE',
       unit: 'Suất',
-      stockQty: 0,
     })
+
     setOpen(true)
   }
 
+  // ================= EDIT =================
+
   const openEdit = (row) => {
     setEditing(row)
+
     form.setFieldsValue({
       ...row,
-      supplierId: row.supplierId ?? row.supplier?.id ?? undefined,
+      supplierId:
+        row.supplierId ??
+        row.supplier?.id ??
+        undefined,
     })
+
     setOpen(true)
   }
+
+  // ================= DELETE =================
 
   const handleDelete = async (id) => {
     try {
       await productAPI.delete(id)
-      message.success('Xóa dịch vụ thành công')
+
+      message.success(
+        'Đã chuyển dịch vụ sang ngừng sử dụng'
+      )
+
       load()
     } catch (error) {
-      message.error(error.response?.data?.message ?? 'Xóa thất bại')
+      message.error(
+        error.response?.data?.message ??
+          'Thao tác thất bại'
+      )
     }
   }
 
+  // ================= SAVE =================
+
   const onFinish = async (values) => {
     try {
-      if (editing) {
-        await productAPI.update(editing.id, values)
-        message.success('Cập nhật dịch vụ thành công')
-      } else {
-        await productAPI.create(values)
-        message.success('Thêm dịch vụ thành công')
+      const payload = {
+        ...values,
       }
+
+      if (!editing) {
+        delete payload.status
+      }
+
+      if (editing) {
+        await productAPI.update(
+          editing.id,
+          payload
+        )
+
+        message.success(
+          'Cập nhật dịch vụ thành công'
+        )
+      } else {
+        await productAPI.create(payload)
+
+        message.success(
+          'Thêm dịch vụ thành công'
+        )
+      }
+
       setOpen(false)
+
       load()
     } catch (error) {
-      message.error(error.response?.data?.message ?? 'Lưu dữ liệu thất bại')
+      message.error(
+        error.response?.data?.message ??
+          'Lưu dữ liệu thất bại'
+      )
     }
   }
+
+  // ================= DASHBOARD STATS =================
 
   const lowAvailabilityCount = useMemo(
     () =>
       data.filter(
-        (d) => (d.stockQty ?? 0) <= (d.minStock ?? 10)
+        (d) =>
+          (d.stockQty ?? 0) <=
+          (d.minStock ?? 10)
       ).length,
     [data]
   )
 
   const totalValue = useMemo(
-    () => data.reduce((sum, d) => sum + (d.buyPrice ?? 0) * (d.stockQty ?? 0), 0),
+    () =>
+      data.reduce(
+        (sum, d) =>
+          sum +
+          (d.buyPrice ?? 0) *
+            (d.stockQty ?? 0),
+        0
+      ),
     [data]
   )
 
   const activeCount = useMemo(
-    () => data.filter((d) => d.status === 'ACTIVE').length,
+    () =>
+      data.filter(
+        (d) => d.status === 'ACTIVE'
+      ).length,
     [data]
   )
+
+  // ================= PRODUCT TABLE =================
 
   const columns = [
     {
       title: 'Mã',
       dataIndex: 'code',
       width: 100,
+
       render: (v) => (
-        <span style={{ color: '#888', fontSize: 12, fontWeight: 500 }}>
+        <span
+          style={{
+            color: '#888',
+            fontSize: 12,
+            fontWeight: 500,
+          }}
+        >
           {v || '--'}
         </span>
       ),
     },
+
     {
       title: 'Tên dịch vụ',
       dataIndex: 'name',
+
       render: (v, r) => (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
             <strong
-              style={{ cursor: 'pointer', color: '#1677ff' }}
+              style={{
+                cursor: 'pointer',
+                color: '#1677ff',
+              }}
               onClick={() => openEdit(r)}
             >
               {v}
             </strong>
-            {(r.stockQty ?? 0) <= (r.minStock ?? 10) && (
+
+            {(r.stockQty ?? 0) <=
+              (r.minStock ?? 10) && (
               <Tooltip title="Sắp hết khả dụng">
-                <WarningOutlined style={{ color: '#fa8c16' }} />
+                <WarningOutlined
+                  style={{
+                    color: '#fa8c16',
+                  }}
+                />
               </Tooltip>
             )}
           </div>
-          <div style={{ color: '#999', fontSize: 12 }}>
-            Đơn vị: {r.unit || 'Chưa cập nhật'}
+
+          <div
+            style={{
+              color: '#999',
+              fontSize: 12,
+            }}
+          >
+            Đơn vị:{' '}
+            {r.unit || 'Chưa cập nhật'}
           </div>
         </div>
       ),
     },
+
     {
       title: 'Loại',
       dataIndex: 'type',
-      width: 130,
+      width: 150,
+
       render: (v) => (
-        <Tag color={TYPE_COLOR[v] || 'default'}>
-          {TYPE_LABEL[v] || v || 'Khác'}
+        <Tag
+          color={
+            TYPE_COLOR[v] || 'default'
+          }
+        >
+          {TYPE_LABEL[v] ||
+            v ||
+            'Khác'}
         </Tag>
       ),
-      filters: Object.entries(TYPE_LABEL).map(([k, v]) => ({
-        text: v,
-        value: k,
-      })),
-      onFilter: (val, r) => r.type === val,
     },
+
     {
       title: 'Nhà cung cấp',
       dataIndex: 'supplierName',
-      render: (v) => v || 'Chưa gán',
+
+      render: (v) =>
+        v || 'Chưa gán',
     },
+
     {
       title: 'Giá đầu vào',
       dataIndex: 'buyPrice',
       align: 'right',
-      render: (v) => <span>{fmt(v)} ₫</span>,
-      sorter: (a, b) => (a.buyPrice ?? 0) - (b.buyPrice ?? 0),
+
+      render: (v) => (
+        <span>{fmt(v)} ₫</span>
+      ),
     },
+
     {
       title: 'Giá phân bổ',
       dataIndex: 'sellPrice',
       align: 'right',
-      render: (v) => <strong>{fmt(v)} ₫</strong>,
-      sorter: (a, b) => (a.sellPrice ?? 0) - (b.sellPrice ?? 0),
+
+      render: (v) => (
+        <strong>{fmt(v)} ₫</strong>
+      ),
     },
+
     {
       title: 'Khả dụng',
       dataIndex: 'stockQty',
       align: 'center',
-      width: 110,
+      width: 120,
+
       render: (v, r) => {
         const qty = Number(v ?? 0)
-        const min = Number(r.minStock ?? 10)
-        const color = qty <= 0 ? 'red' : qty <= min ? 'orange' : 'green'
-        return <Tag color={color}>{qty}</Tag>
+
+        const min = Number(
+          r.minStock ?? 10
+        )
+
+        const color =
+          qty <= 0
+            ? 'red'
+            : qty <= min
+            ? 'orange'
+            : 'green'
+
+        return (
+          <Tag color={color}>
+            {qty}
+          </Tag>
+        )
       },
-      sorter: (a, b) => (a.stockQty ?? 0) - (b.stockQty ?? 0),
     },
+
     {
       title: 'Ngưỡng cảnh báo',
       dataIndex: 'minStock',
       align: 'center',
-      width: 130,
+      width: 140,
+
       render: (v) => v ?? 10,
-      sorter: (a, b) => (a.minStock ?? 10) - (b.minStock ?? 10),
     },
-    {
-      title: 'Tổng chi phí',
-      key: 'inventoryValue',
-      align: 'right',
-      render: (_, r) => (
-        <span>{fmt((r.buyPrice ?? 0) * (r.stockQty ?? 0))} ₫</span>
-      ),
-      sorter: (a, b) =>
-        (a.buyPrice ?? 0) * (a.stockQty ?? 0) -
-        (b.buyPrice ?? 0) * (b.stockQty ?? 0),
-    },
+
     {
       title: 'Trạng thái',
       dataIndex: 'status',
-      width: 140,
+      width: 150,
+
       render: (v) => (
-        <Tag color={STATUS_COLOR[v] || 'default'}>
-          {STATUS_LABEL[v] || v || 'Không xác định'}
+        <Tag
+          color={
+            STATUS_COLOR[v] ||
+            'default'
+          }
+        >
+          {STATUS_LABEL[v] ||
+            v ||
+            'Không xác định'}
         </Tag>
       ),
     },
+
     {
       title: '',
       key: 'act',
       width: 110,
+
       render: (_, row) => (
         <Space size={6}>
           <Tooltip title="Chỉnh sửa">
             <Button
               size="small"
               icon={<EditOutlined />}
-              onClick={() => openEdit(row)}
+              onClick={() =>
+                openEdit(row)
+              }
             />
           </Tooltip>
 
           <Popconfirm
-            title="Xác nhận xóa dịch vụ này?"
-            okText="Xóa"
+            title="Chuyển dịch vụ sang ngừng sử dụng?"
+            okText="Xác nhận"
             cancelText="Hủy"
-            onConfirm={() => handleDelete(row.id)}
+            onConfirm={() =>
+              handleDelete(row.id)
+            }
           >
-            <Tooltip title="Xóa">
-              <Button size="small" danger icon={<DeleteOutlined />} />
+            <Tooltip title="Ngừng sử dụng">
+              <Button
+                size="small"
+                danger
+                icon={
+                  <DeleteOutlined />
+                }
+              />
             </Tooltip>
           </Popconfirm>
         </Space>
@@ -322,16 +496,84 @@ export default function TourServiceManagement() {
     },
   ]
 
+  // ================= REPORT TABLE =================
+
+  const reportColumns = [
+    {
+      title: 'Mã',
+      dataIndex: 'code',
+    },
+
+    {
+      title: 'Tên dịch vụ',
+      dataIndex: 'name',
+    },
+
+    {
+      title: 'Loại',
+      dataIndex: 'type',
+
+      render: (v) => (
+        <Tag
+          color={
+            TYPE_COLOR[v] || 'default'
+          }
+        >
+          {TYPE_LABEL[v] || v}
+        </Tag>
+      ),
+    },
+
+    {
+      title: 'Số lượng',
+      dataIndex: 'stockQty',
+      align: 'center',
+    },
+
+    {
+      title: 'Giá đầu vào',
+      dataIndex: 'buyPrice',
+      align: 'right',
+
+      render: (v) => `${fmt(v)} ₫`,
+    },
+
+    {
+      title: 'Tổng giá trị',
+      key: 'total',
+
+      align: 'right',
+
+      render: (_, r) =>
+        `${fmt(
+          (r.buyPrice ?? 0) *
+            (r.stockQty ?? 0)
+        )} ₫`,
+    },
+  ]
+
   return (
     <>
-      <Typography.Title level={4} style={{ marginBottom: 18 }}>
-        Quản lý tài nguyên & dịch vụ tour
+      <Typography.Title
+        level={4}
+        style={{ marginBottom: 18 }}
+      >
+        Quản lý tài nguyên &
+        dịch vụ tour
       </Typography.Title>
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+      {/* DASHBOARD */}
+
+      <Row
+        gutter={[12, 12]}
+        style={{ marginBottom: 16 }}
+      >
         <Col xs={24} sm={12} md={6}>
           <Card>
-            <Statistic title="Tổng dịch vụ" value={data.length} />
+            <Statistic
+              title="Tổng dịch vụ"
+              value={data.length}
+            />
           </Card>
         </Col>
 
@@ -340,7 +582,9 @@ export default function TourServiceManagement() {
             <Statistic
               title="Dịch vụ khả dụng"
               value={activeCount}
-              valueStyle={{ color: '#1D9E75' }}
+              valueStyle={{
+                color: '#1D9E75',
+              }}
             />
           </Card>
         </Col>
@@ -349,8 +593,16 @@ export default function TourServiceManagement() {
           <Card>
             <Statistic
               title="Sắp hết khả dụng"
-              value={lowAvailabilityCount}
-              valueStyle={{ color: lowAvailabilityCount > 0 ? '#fa8c16' : '#1D9E75' }}
+              value={
+                lowAvailabilityCount
+              }
+              valueStyle={{
+                color:
+                  lowAvailabilityCount >
+                  0
+                    ? '#fa8c16'
+                    : '#1D9E75',
+              }}
             />
           </Card>
         </Col>
@@ -358,13 +610,19 @@ export default function TourServiceManagement() {
         <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
-              title="Tổng giá trị dịch vụ"
-              value={`${fmt(totalValue)} ₫`}
-              valueStyle={{ fontSize: 16 }}
+              title="Tổng giá trị"
+              value={`${fmt(
+                totalValue
+              )} ₫`}
+              valueStyle={{
+                fontSize: 16,
+              }}
             />
           </Card>
         </Col>
       </Row>
+
+      {/* FILTER */}
 
       <div
         style={{
@@ -381,32 +639,33 @@ export default function TourServiceManagement() {
           allowClear
           onSearch={setSearch}
           onChange={(e) => {
-            if (!e.target.value) setSearch('')
+            if (!e.target.value)
+              setSearch('')
           }}
         />
 
         <Select
           placeholder="Lọc loại dịch vụ"
           allowClear
-          style={{ width: 180 }}
-          value={typeFilter || undefined}
-          onChange={(value) => setTypeFilter(value || '')}
-          options={Object.entries(TYPE_LABEL).map(([k, v]) => ({
+          style={{ width: 200 }}
+          value={
+            typeFilter || undefined
+          }
+          onChange={(value) =>
+            setTypeFilter(value || '')
+          }
+          options={Object.entries(
+            TYPE_LABEL
+          ).map(([k, v]) => ({
             value: k,
             label: v,
           }))}
         />
 
-        <Select
-          placeholder="Lọc nhà cung cấp"
-          allowClear
-          style={{ width: 220 }}
-          value={supplierFilter || undefined}
-          onChange={(value) => setSupplierFilter(value || '')}
-          options={suppliers}
-        />
-
-        <Button icon={<ReloadOutlined />} onClick={load}>
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={load}
+        >
           Làm mới
         </Button>
 
@@ -414,20 +673,16 @@ export default function TourServiceManagement() {
           type="primary"
           icon={<PlusOutlined />}
           onClick={openCreate}
-          style={{ background: '#1D9E75', borderColor: '#1D9E75' }}
+          style={{
+            background: '#1D9E75',
+            borderColor: '#1D9E75',
+          }}
         >
           Thêm dịch vụ
         </Button>
-
-        <Button
-          icon={<FileTextOutlined />}
-          onClick={() =>
-            message.info('Chức năng xuất báo cáo tài nguyên đang phát triển')
-          }
-        >
-          Báo cáo dịch vụ
-        </Button>
       </div>
+
+      {/* PRODUCT TABLE */}
 
       <Table
         columns={columns}
@@ -436,15 +691,67 @@ export default function TourServiceManagement() {
         loading={loading}
         size="small"
         bordered
-        scroll={{ x: 1300 }}
+        scroll={{ x: 1200 }}
         pagination={{
           pageSize: 10,
-          showTotal: (t) => `Tổng ${t} dịch vụ`,
+          showTotal: (t) =>
+            `Tổng ${t} dịch vụ`,
         }}
       />
 
+      {/* REPORT */}
+
+      <Card
+        title="Báo cáo thống kê sản phẩm"
+        style={{ marginTop: 20 }}
+      >
+        <Space
+          style={{ marginBottom: 16 }}
+        >
+          <DatePicker
+            picker="month"
+            value={dayjs(
+              `${statYear}-${statMonth}`
+            )}
+            onChange={(v) => {
+              if (!v) return
+
+              setStatMonth(
+                v.month() + 1
+              )
+
+              setStatYear(v.year())
+            }}
+          />
+
+          <Button
+            icon={<FileTextOutlined />}
+            onClick={loadStatistics}
+          >
+            Xem báo cáo
+          </Button>
+        </Space>
+
+        <Table
+          columns={reportColumns}
+          dataSource={statistics}
+          rowKey="id"
+          loading={reportLoading}
+          bordered
+          pagination={{
+            pageSize: 5,
+          }}
+        />
+      </Card>
+
+      {/* MODAL */}
+
       <Modal
-        title={editing ? 'Chỉnh sửa dịch vụ tour' : 'Thêm dịch vụ tour mới'}
+        title={
+          editing
+            ? 'Chỉnh sửa dịch vụ'
+            : 'Thêm dịch vụ mới'
+        }
         open={open}
         width={700}
         onCancel={() => setOpen(false)}
@@ -453,15 +760,25 @@ export default function TourServiceManagement() {
         cancelText="Hủy"
         destroyOnClose
       >
-        <Form form={form} layout="vertical" onFinish={onFinish}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+        >
           <Row gutter={12}>
             <Col span={24}>
               <Form.Item
                 name="name"
                 label="Tên dịch vụ"
-                rules={[{ required: true, message: 'Vui lòng nhập tên dịch vụ' }]}
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      'Vui lòng nhập tên dịch vụ',
+                  },
+                ]}
               >
-                <Input placeholder="Ví dụ: Khách sạn 3 sao Đà Lạt / Vé cáp treo / Xe 29 chỗ..." />
+                <Input placeholder="Nhập tên dịch vụ..." />
               </Form.Item>
             </Col>
 
@@ -469,11 +786,19 @@ export default function TourServiceManagement() {
               <Form.Item
                 name="type"
                 label="Loại dịch vụ"
-                rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      'Vui lòng chọn loại dịch vụ',
+                  },
+                ]}
               >
                 <Select
-                  placeholder="Chọn loại dịch vụ"
-                  options={Object.entries(TYPE_LABEL).map(([k, v]) => ({
+                  placeholder="Chọn loại"
+                  options={Object.entries(
+                    TYPE_LABEL
+                  ).map(([k, v]) => ({
                     value: k,
                     label: v,
                   }))}
@@ -482,7 +807,10 @@ export default function TourServiceManagement() {
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item name="supplierId" label="Nhà cung cấp">
+              <Form.Item
+                name="supplierId"
+                label="Nhà cung cấp"
+              >
                 <Select
                   placeholder="Chọn nhà cung cấp"
                   options={suppliers}
@@ -492,8 +820,11 @@ export default function TourServiceManagement() {
             </Col>
 
             <Col xs={24} md={12}>
-              <Form.Item name="unit" label="Đơn vị tính">
-                <Input placeholder="Ví dụ: Vé, Đêm, Suất, Xe, Người..." />
+              <Form.Item
+                name="unit"
+                label="Đơn vị tính"
+              >
+                <Input placeholder="Ví dụ: Vé, Suất..." />
               </Form.Item>
             </Col>
 
@@ -501,12 +832,12 @@ export default function TourServiceManagement() {
               <Form.Item
                 name="stockQty"
                 label="Số lượng khả dụng"
-                tooltip="Số lượng dịch vụ hiện còn có thể sử dụng / phân bổ"
               >
                 <InputNumber
-                  style={{ width: '100%' }}
+                  style={{
+                    width: '100%',
+                  }}
                   min={0}
-                  placeholder="Nhập số lượng khả dụng"
                 />
               </Form.Item>
             </Col>
@@ -515,48 +846,65 @@ export default function TourServiceManagement() {
               <Form.Item
                 name="minStock"
                 label="Ngưỡng cảnh báo"
-                tooltip="Khi số lượng khả dụng thấp hơn hoặc bằng mức này, hệ thống sẽ cảnh báo"
-                initialValue={10}
               >
                 <InputNumber
-                  style={{ width: '100%' }}
+                  style={{
+                    width: '100%',
+                  }}
                   min={0}
-                  placeholder="Ví dụ: 10"
                 />
               </Form.Item>
             </Col>
 
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="status"
-                label="Trạng thái"
-                initialValue="ACTIVE"
-              >
-                <Select
-                  options={[
-                    { value: 'ACTIVE', label: 'Khả dụng' },
-                    { value: 'OUT_OF_STOCK', label: 'Hết khả dụng' },
-                    { value: 'INACTIVE', label: 'Ngừng sử dụng' },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
+            {editing && (
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="status"
+                  label="Trạng thái"
+                >
+                  <Select
+                    options={[
+                      {
+                        value: 'ACTIVE',
+                        label:
+                          'Khả dụng',
+                      },
+                      {
+                        value:
+                          'OUT_OF_STOCK',
+                        label:
+                          'Hết khả dụng',
+                      },
+                      {
+                        value:
+                          'INACTIVE',
+                        label:
+                          'Ngừng sử dụng',
+                      },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+            )}
 
             <Col xs={24} md={12}>
               <Form.Item
                 name="buyPrice"
-                label="Giá đầu vào (₫)"
-                rules={[{ required: true, message: 'Vui lòng nhập giá đầu vào' }]}
+                label="Giá đầu vào"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      'Vui lòng nhập giá đầu vào',
+                  },
+                ]}
               >
                 <InputNumber
-                  style={{ width: '100%' }}
+                  style={{
+                    width: '100%',
+                  }}
                   min={0}
                   step={10000}
-                  formatter={(v) =>
-                    `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  }
-                  parser={(v) => v?.replace(/,/g, '')}
-                  placeholder="Nhập giá đầu vào"
                 />
               </Form.Item>
             </Col>
@@ -564,18 +912,21 @@ export default function TourServiceManagement() {
             <Col xs={24} md={12}>
               <Form.Item
                 name="sellPrice"
-                label="Giá phân bổ / dự kiến (₫)"
-                rules={[{ required: true, message: 'Vui lòng nhập giá phân bổ' }]}
+                label="Giá phân bổ"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      'Vui lòng nhập giá phân bổ',
+                  },
+                ]}
               >
                 <InputNumber
-                  style={{ width: '100%' }}
+                  style={{
+                    width: '100%',
+                  }}
                   min={0}
                   step={10000}
-                  formatter={(v) =>
-                    `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-                  }
-                  parser={(v) => v?.replace(/,/g, '')}
-                  placeholder="Nhập giá phân bổ"
                 />
               </Form.Item>
             </Col>

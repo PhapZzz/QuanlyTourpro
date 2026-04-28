@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.time.LocalDate;
+import java.time.YearMonth;
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -98,10 +99,38 @@ public class SalaryService {
         return toResponse(salaryRepo.save(record));
     }
 
+    private BigDecimal applyProRata(BigDecimal fullSalary, Employee emp, int month, int year) {
+        LocalDate hireDate = emp.getHireDate();
+        if (hireDate == null) return fullSalary;
+
+        YearMonth salaryMonth = YearMonth.of(year, month);
+        LocalDate firstDay    = salaryMonth.atDay(1);
+        LocalDate lastDay     = salaryMonth.atEndOfMonth();
+
+        // Nếu hireDate trước hoặc đúng ngày đầu tháng → full lương
+        if (!hireDate.isAfter(firstDay)) return fullSalary;
+
+        // Nếu hireDate sau tháng tính lương → lương = 0 (chưa vào)
+        if (hireDate.isAfter(lastDay)) return BigDecimal.ZERO;
+
+        // Tính số ngày làm thực tế trong tháng
+        int totalDays  = salaryMonth.lengthOfMonth();
+        int workedDays = (int) (lastDay.toEpochDay() - hireDate.toEpochDay()) + 1;
+
+        return fullSalary
+                .multiply(BigDecimal.valueOf(workedDays))
+                .divide(BigDecimal.valueOf(totalDays), 0, RoundingMode.HALF_UP);
+    }
+
     // ── Logic tính lương dùng chung ──────────────────────
     private SalaryDTO.Response calculateAndSave(Employee emp, SalaryDTO.CalculateRequest req) {
-        BigDecimal base      = emp.getBaseSalary();
-        BigDecimal allowance = emp.getAllowance() != null ? emp.getAllowance() : BigDecimal.ZERO;
+//        BigDecimal base      = emp.getBaseSalary();
+//        BigDecimal allowance = emp.getAllowance() != null ? emp.getAllowance() : BigDecimal.ZERO;
+        BigDecimal base      = applyProRata(emp.getBaseSalary(), emp, req.getMonth(), req.getYear());
+        // ← Trước: BigDecimal allowance = emp.getAllowance() != null ? emp.getAllowance() : BigDecimal.ZERO;
+        BigDecimal allowance = applyProRata(
+                emp.getAllowance() != null ? emp.getAllowance() : BigDecimal.ZERO,
+                emp, req.getMonth(), req.getYear());
         BigDecimal bonus     = req.getBonus()          != null ? req.getBonus()          : BigDecimal.ZERO;
 
         BigDecimal socialInsurance       = base.multiply(SOCIAL_INSURANCE_RATE)
@@ -216,5 +245,11 @@ public class SalaryService {
                 .approvedBy(r.getApprovedBy())
                 .approvedAt(r.getApprovedAt())
                 .build();
+    }
+    public boolean isOwner(Long employeeId, Long principalUserId) {
+        return empRepo.findById(employeeId)
+                .map(emp -> emp.getUser() != null
+                        && emp.getUser().getId().equals(principalUserId))
+                .orElse(false);
     }
 }

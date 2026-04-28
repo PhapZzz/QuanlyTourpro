@@ -3,7 +3,7 @@ import { Table, Button, Space, Tag, Modal, Form, Input, Select, message, Typogra
 import { PlusOutlined, EditOutlined, DeleteOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons'
 import { userAPI } from '../../services/api'
 
-const ROLE_LABELS = { ADMIN:'Admin', HR_MANAGER:'Quản lý nhân sự', WAREHOUSE_MANAGER:'Quản lý kho', SALES_MANAGER:'Kinh doanh', EMPLOYEE:'Nhân viên', CUSTOMER:'Khách hàng' }
+const ROLE_LABELS = { ADMIN:'Admin', HR_MANAGER:'nhân sự', WAREHOUSE_MANAGER:'kho', SALES_MANAGER:'Kinh doanh', CUSTOMER:'Khách hàng' }
 const ROLE_COLORS = { ADMIN:'purple', HR_MANAGER:'green', WAREHOUSE_MANAGER:'gold', SALES_MANAGER:'blue', EMPLOYEE:'default', CUSTOMER:'cyan' }
 
 export default function AdminUsers() {
@@ -30,11 +30,25 @@ export default function AdminUsers() {
 
   const onFinish = async (values) => {
     try {
-      if (editing) await userAPI.update(editing.id, values)
-      else await userAPI.create(values)
-      message.success(editing ? 'Cập nhật thành công' : 'Tạo tài khoản thành công')
-      setOpen(false); load()
-    } catch (e) { message.error(e.response?.data?.message ?? 'Lỗi') }
+      if (editing) {
+        await userAPI.update(editing.id, values)
+        message.success('Cập nhật thành công')
+      } else {
+        await userAPI.create(values)
+  const EMPLOYEE_ROLES = ['EMPLOYEE', 'HR_MANAGER', 'WAREHOUSE_MANAGER', 'SALES_MANAGER']
+  const msg = values.role === 'CUSTOMER'
+    ? '✅ Tạo tài khoản thành công — đã thêm vào Danh sách khách hàng'
+    : EMPLOYEE_ROLES.includes(values.role)
+      ? '✅ Tạo tài khoản thành công — đã thêm vào Danh sách nhân viên'
+      : 'Tạo tài khoản thành công'
+  message.success(msg)
+      }
+      setOpen(false)
+      load()
+    } catch (e) {
+      message.error(e.response?.data?.message ?? 'Lỗi')
+
+    }
   }
 
   const toggleLock = async (row) => {

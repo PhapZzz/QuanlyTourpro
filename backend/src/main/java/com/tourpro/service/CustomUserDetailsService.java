@@ -1,5 +1,6 @@
 package com.tourpro.service;
 
+import com.tourpro.config.UserPrincipal;
 import com.tourpro.entity.User;
 import com.tourpro.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
-                .password(user.getPasswordHash())
-                .roles(user.getRole().name())
-                .accountLocked(user.getStatus() == User.UserStatus.LOCKED)
-                .disabled(user.getStatus() == User.UserStatus.INACTIVE)
-                .build();
+//        return org.springframework.security.core.userdetails.User.builder()
+//                .username(user.getUsername())
+//                .password(user.getPasswordHash())
+//                .roles(user.getRole().name())
+//                .accountLocked(user.getStatus() == User.UserStatus.LOCKED)
+//                .disabled(user.getStatus() == User.UserStatus.INACTIVE)
+//                .build();
+        return new UserPrincipal(user);
     }
 }

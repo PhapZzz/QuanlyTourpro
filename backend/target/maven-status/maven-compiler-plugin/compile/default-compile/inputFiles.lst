@@ -2,6 +2,7 @@ E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\Tour
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\controller\AdminController.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\UserDTO.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\service\CustomUserDetailsService.java
+E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\config\UserPrincipal.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\BookingDTO.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\controller\SalaryController.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\service\CustomerService.java
@@ -29,6 +30,7 @@ E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\User.jav
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\entity\Position.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\CustomerDTO.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\dto\PositionHistoryDTO.java
+E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\config\UserDetailsServiceImpl.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\config\SecurityConfig.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\repository\UserRepository.java
 E:\hoctap\ky2nam5\httt\tourpro\backend\src\main\java\com\tourpro\config\JpaAuditingConfig.java

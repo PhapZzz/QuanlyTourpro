@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
+    private final JwtAuthFilter      jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
     @Bean
@@ -36,16 +36,31 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+
+                        // ── Public ───────────────────────────────────────────
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/tours/**").permitAll()
                         .requestMatchers("/api/reviews/**").permitAll()
+
+                        // ── Admin only ───────────────────────────────────────
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-//                        .requestMatchers("/api/hr/**").hasAnyRole("ADMIN", "HR_MANAGER")
-                        .requestMatchers("/api/hr/**").permitAll()
-                        .requestMatchers("/api/warehouse/**").hasAnyRole("ADMIN", "WAREHOUSE_MANAGER")
-                        .requestMatchers("/api/sales/**").hasAnyRole("ADMIN", "SALES_MANAGER")
-                        .requestMatchers("/api/customers/**").hasAnyRole("ADMIN", "SALES_MANAGER", "CUSTOMER")
-                        .requestMatchers("/api/bookings/**").hasAnyRole("ADMIN", "SALES_MANAGER", "CUSTOMER")
+
+                        // ── HR: tất cả nhân viên nội bộ đều authenticated ───
+                        // Chi tiết ai xem được gì do @PreAuthorize từng endpoint
+                        .requestMatchers("/api/hr/**").authenticated()
+
+                        // ── Warehouse / Sales ────────────────────────────────
+                        .requestMatchers("/api/warehouse/**")
+                        .hasAnyRole("ADMIN", "WAREHOUSE_MANAGER")
+                        .requestMatchers("/api/sales/**")
+                        .hasAnyRole("ADMIN", "SALES_MANAGER")
+
+                        // ── Customer / Booking ───────────────────────────────
+                        .requestMatchers("/api/customers/**")
+                        .hasAnyRole("ADMIN", "SALES_MANAGER", "CUSTOMER")
+                        .requestMatchers("/api/bookings/**")
+                        .hasAnyRole("ADMIN", "SALES_MANAGER", "CUSTOMER")
+
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)

@@ -173,4 +173,11 @@ public class EmployeeService {
                 .createdAt(h.getCreatedAt())
                 .build();
     }
+
+    public boolean isOwner(Long employeeId, Long principalUserId) {
+        return empRepo.findById(employeeId)
+                .map(emp -> emp.getUser() != null
+                        && emp.getUser().getId().equals(principalUserId))
+                .orElse(false);
+    }
 }

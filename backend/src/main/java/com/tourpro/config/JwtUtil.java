@@ -25,6 +25,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    // ✅ Generate JWT
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
@@ -34,20 +35,52 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractUsername(String token) {
-        return Jwts.parserBuilder().setSigningKey(getKey()).build()
-                .parseClaimsJws(token).getBody().getSubject();
+    // ✅ Extract all claims
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
+    // ✅ Extract username
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    // ✅ Extract expiration
+    public Date extractExpiration(String token) {
+        return extractAllClaims(token).getExpiration();
+    }
+
+    // ✅ Check expired
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    // ✅ Validate token
     public boolean validateToken(String token, UserDetails userDetails) {
         try {
-            String username = extractUsername(token);
-            Date exp = Jwts.parserBuilder().setSigningKey(getKey()).build()
-                    .parseClaimsJws(token).getBody().getExpiration();
-            return username.equals(userDetails.getUsername()) && !exp.before(new Date());
+            final String username = extractUsername(token);
+
+            return (
+                    username.equals(userDetails.getUsername())
+                            && !isTokenExpired(token)
+            );
+
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT expired: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            log.warn("Invalid JWT format: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            log.warn("Unsupported JWT: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.warn("JWT claims empty: {}", e.getMessage());
         } catch (JwtException e) {
-            log.warn("Invalid JWT: {}", e.getMessage());
-            return false;
+            log.warn("JWT error: {}", e.getMessage());
         }
+
+        return false;
     }
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import {
   Table, Button, Space, Tag, Modal, Form, Input, Select,
   InputNumber, message, Typography, Popconfirm, Rate,
-  Tabs, Descriptions, Divider, Card, Statistic, Row, Col, Tooltip
+  Tabs, Descriptions, Divider, Card, Statistic, Row, Col, Tooltip,DatePicker
 } from 'antd'
 import {
   PlusOutlined, EditOutlined, DeleteOutlined,
@@ -114,6 +114,12 @@ export default function AdminTours() {
   // Thêm lịch khởi hành
   const onAddSchedule = async (values) => {
     try {
+            const selectedDate = values.departureDate
+            const today = dayjs().startOf('day')
+            if (!selectedDate || selectedDate.isBefore(today)) {
+              message.error('Ngày khởi hành phải từ hôm nay trở đi')
+              return
+            }
       const r = await tourAPI.addSchedule(selected.id, {
         ...values, departureDate: values.departureDate?.format('YYYY-MM-DD')
       })
@@ -482,9 +488,14 @@ export default function AdminTours() {
         onOk={() => scForm.submit()} okText="Thêm lịch">
         <Form form={scForm} layout="vertical" onFinish={onAddSchedule}>
           <Form.Item name="departureDate" label="Ngày khởi hành" rules={[{required:true}]}>
-            <input type="date" style={{width:'100%',padding:'7px 11px',
-              borderRadius:6,border:'1px solid #d9d9d9',fontSize:14}}
-              onChange={e => scForm.setFieldValue('departureDate', dayjs(e.target.value))} />
+{/*             <input type="date" style={{width:'100%',padding:'7px 11px', */}
+{/*               borderRadius:6,border:'1px solid #d9d9d9',fontSize:14}} */}
+{/*               onChange={e => scForm.setFieldValue('departureDate', dayjs(e.target.value))} /> */}
+  <DatePicker
+    style={{ width: '100%' }}
+    format="DD/MM/YYYY"
+    disabledDate={(current) => current && current.isBefore(dayjs().startOf('day'))}
+  />
           </Form.Item>
           <Form.Item name="capacity" label="Số chỗ" rules={[{required:true}]}
             initialValue={selected?.capacity ?? 40}>
